@@ -5,20 +5,24 @@
  */
 
 
-// klíčová slova
+// keywords
 
 typedef enum TK_KW{
-    KEY_BOOL = 50, // čísla od 50 protože je potom nebral swich kvůli stejný hodnotě jako z jiný struktury
-    KEY_ELSE = 51, 
-    KEY_FLOAT = 52, 
-    KEY_FUNCTION = 53, 
-    KEY_IF = 54, 
-    KEY_INT = 55, 
-    KEY_NULL = 56, 
-    KEY_RETURN = 57, 
-    KEY_STRING = 58,
-    KEY_VOID = 59, 
-    KEY_WHILE = 50
+    
+    KEY_BOOL = 100,
+    
+    KEY_ELSE = 101, 
+    KEY_FLOAT = 102, 
+    KEY_FUNCTION = 103, 
+    KEY_IF = 104, 
+    KEY_INT = 105, 
+    KEY_NULL = 106, 
+    KEY_RETURN = 107, 
+    KEY_STRING = 108,
+    KEY_VOID = 109, 
+    KEY_WHILE = 110,
+    KEY_DECLARE = 111
+
 } TK_KW_T;
 
 
@@ -32,16 +36,16 @@ typedef enum TK_TYPE{
     TK_MUL,
     TK_DIV,
     TK_EQ,
+    TK_AND,                 
+    TK_OR,                  
+    TK_NOT,   
     TK_GREATER,
     TK_EQ_GREATER,       
     TK_EQ_LESS,            
     TK_COMPARSION,        
     TK_NEG_COMPARSION,     
     TK_TYPECOMPARSION,      
-    TK_NEG_TYPECOMPARSION,  
-    TK_AND,                 
-    TK_OR,                  
-    TK_NOT,                  
+    TK_NEG_TYPECOMPARSION,      
     TK_PAR_LEFT,              
     TK_PAR_RIGHT,      
     TK_SEMI_COLON,          
@@ -49,7 +53,9 @@ typedef enum TK_TYPE{
     TK_LINE,                   
     TK_CONCAT,
     TK_EOF,
-    TK_EOL
+    TK_EOL,
+    TK_PHP
+
 } TK_TYPE;
 
 
@@ -57,7 +63,8 @@ typedef enum TK_TYPE{
 
 typedef enum FSM_STATE {
     START,                  
-    DOLLAR,                 // variable identificator
+    DOLLAR,                 // $ variable identificator
+    ID,
     VARIABLE,               // variable
     NUMBER,                 // number
     DIV,                    // /
@@ -89,7 +96,11 @@ typedef enum FSM_STATE {
     STRING_LITERAL,         // string
     RETURN,
     EOFile,
-    EOLine
+    EOLine,
+    HEADER,
+    HEADER1,
+    HEADER2,
+    HEADER3
 } STATE;
 
 typedef struct TOKEN{
@@ -107,6 +118,6 @@ typedef struct TOKEN{
 // } token_T;
 
 
-int SpracujZnak(TOKEN *token);
+void  SpracujZnak(TOKEN *token);
 
 

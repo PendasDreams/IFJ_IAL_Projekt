@@ -26,3 +26,10 @@ typedef enum error_code {
     ERROR_SEM_OTHER = 8,
     ERROR_PROGRAM = 99, 
 } error_code;
+
+
+int print_errors(int error)
+{
+    printf("%d", error);
+    return 0;
+}
