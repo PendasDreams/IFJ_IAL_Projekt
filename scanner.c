@@ -27,59 +27,71 @@ Stack s;
 */
 void SpracujZnak(TOKEN *token) 
 {
-    char actual_char;
+    char actual_char[2] = "\0"; /* gives {\0, \0} */
     state = START;
 
 
+
+
    while(1) {
-        actual_char = getc(stdin);
-        printf("%c", actual_char);
+        actual_char[0] = fgetc(stdin);
+        printf("%c", actual_char[0]);
 		token->line = line_count;
+
+
+            char* p = actual_char;
+            Stack_Init(&s);
+            Stack_Push(&s,1,p);
+            Stack_Print(&s);
 
 
 		switch(state){
 			case START:{
-                if ((actual_char == '_') || (actual_char >= 'a' && actual_char <= 'z') || (actual_char >= 'A' && actual_char <= 'Z') ) {
+                printf("CASE START=======\n");
+                if ((actual_char[0] == '_') || (actual_char[0] >= 'a' && actual_char[0] <= 'z') || (actual_char[0] >= 'A' && actual_char[0] <= 'Z') ) {
                     state = ID;
-                    char *data = (char*) malloc(sizeof(char));
-                    *data = actual_char;
+                    char* p = "d";
                     Stack_Init(&s);
-                    Stack_Push(&s, data);
+                    Stack_Push(&s,1,p);
+                    Stack_Print(&s);
                 }
-                else if (actual_char >= '0' && actual_char <= '9') {
+                else if (actual_char[0] >= '0' && actual_char[0] <= '9') {
                     state = NUMBER;
                     //initString(tokenStr);
-                    //stringPush(tokenStr,actual_char);
+                    //stringPush(tokenStr,actual_char[0]);
                 }
-                else if (isspace(actual_char)) {
+                else if (isspace(actual_char[0])) {
                     ;
                 }
-                else if (actual_char == EOF) {
+                else if (actual_char[0] == EOF) {
                     token->type = EOFile;
                     return;
                 }
                 else {
-                    switch (actual_char) {
+                    switch (actual_char[0]) {
 
                         case '<':
+                            printf("CASE LESS=======\n");
                             state = LESS;
                             break;
-
                         default:
                             print_errors(ERROR_LEX);
                             return;
                     }
                 }
+                                            printf("CASE LESS=======\n");
+
                 break;
             }
 
+
             // case ID: {
-            //     if ((actual_char == '_') || (actual_char >= 'a' && actual_char <= 'z') || (actual_char >= 'A' && actual_char <= 'Z') || (actual_char >= '0' && actual_char <= '9')) {
-            //         Stack_Push(tokenStr, actual_char);
+            //     if ((actual_char[0] == '_') || (actual_char[0] >= 'a' && actual_char[0] <= 'z') || (actual_char[0] >= 'A' && actual_char[0] <= 'Z') || (actual_char[0] >= '0' && actual_char[0] <= '9')) {
+            //         Stack_Push(tokenStr, actual_char[0]);
             //         state = ID;
             //     }
             //     else {
-            //         lastChar = actual_char;
+            //         lastChar = actual_char[0];
             //         charStreamSwitch = 0;
             //         KeywordTokenType keywordType = strToKeyword(tokenStr); // FUNCTION CHECKS IF IDENTIFIER, WHICH HAS BEEN FOUND AINT A RESERVED ( KEYWORD ) WORD
             //         if (keywordType == KTT_None) {
@@ -116,17 +128,17 @@ void SpracujZnak(TOKEN *token)
             // }
 
 
-
-            case LESS:{                
-                if (actual_char == '=') {
+                printf("CASE LESS=======\n");
+            case LESS:{         
+                if (actual_char[0] == '=') {
                     token->type = EQ_LESS;
                     return;
                 }
-                else if (actual_char == '?') {
+                else if (actual_char[0] == '?') {
                     state = HEADER;
                 }
                 else {
-                    //lastChar = actual_char;
+                    //lastChar = actual_char[0];
                     //charStreamSwitch = 0;
                     token->type = LESS;
                     return;
@@ -135,7 +147,7 @@ void SpracujZnak(TOKEN *token)
             }
 
             case HEADER: {
-                if (actual_char == 'p') {
+                if (actual_char[0] == 'p') {
                     state = HEADER1;
                 }
                 else {
@@ -145,7 +157,7 @@ void SpracujZnak(TOKEN *token)
                 break;
             }
             case HEADER1: {
-                if (actual_char == 'h') {
+                if (actual_char[0] == 'h') {
                     state = HEADER2;
                 }
                 else {
@@ -155,7 +167,7 @@ void SpracujZnak(TOKEN *token)
                 break;
             }
             case HEADER2: {
-                if (actual_char == 'p') {
+                if (actual_char[0] == 'p') {
                     state = HEADER3;
                 }
                 else {
@@ -165,7 +177,7 @@ void SpracujZnak(TOKEN *token)
                 break;
             }
             case HEADER3: {
-                if (isspace(actual_char)) {
+                if (isspace(actual_char[0])) {
                     token->type = TK_PHP;
                     return;
                 }

@@ -15,9 +15,9 @@ typedef struct item {
 
 	struct item *next;
 	int type;
-	char data;
+	char* data;
 
-}top_ithem;
+}ptrItem;
 
 // type 1 = char
 // type 2 = int
@@ -25,7 +25,7 @@ typedef struct item {
 
 typedef struct 
 {
-	top_ithem *top;
+	ptrItem *top;
 
 } Stack;
 
@@ -82,7 +82,7 @@ void Stack_Pop( Stack* stack );
  * @param value int k vložení
  * @param data data ulozena v tokenu
  */
-void Stack_Push( Stack* stack,char *data);
+void Stack_Push( Stack* stack,int value,char *data);
 
 /**
  * @brief Zniceni zasobniku, free pameti
@@ -94,7 +94,7 @@ void Stack_Destroy( Stack* stack);
  * @brief Vraci ptrItem na vrchol zasobniku
  * @param stack Ukazatel na zásobník
  */
-top_ithem* Stack_Top_Ptr( Stack* stack);
+ptrItem* Stack_Top_Ptr( Stack* stack);
 
 /**
  * @brief Pomocna funkce na vytiksnuti obsahu zasobniku

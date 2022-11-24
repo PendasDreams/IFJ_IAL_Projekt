@@ -59,7 +59,7 @@ void Stack_Pop(Stack *stack)
 
 	if (!Stack_IsEmpty(stack)) //pokud neni prazdny
 	{
-		top_ithem *item=NULL;
+		ptrItem *item=NULL;
 		item = stack->top;
 		stack->top = item->next;
 		// if (item->data != NULL)
@@ -74,19 +74,14 @@ void Stack_Pop(Stack *stack)
 }
 
 
-void Stack_Push(Stack *stack, char *data)
+void Stack_Push(Stack *stack, int type, char *data)
 {
-	top_ithem *item = malloc(sizeof(top_ithem));
+	ptrItem *item = malloc(sizeof(ptrItem));
 	if (item==NULL)
 	{
 		exit(99);
 	}
-
-
-    printf("\n%p\n", data);
-
-
-	//item->type=type;
+	item->type=type;
 	item->data= data;
 	item->next=stack->top;
 	stack->top=item;
@@ -100,7 +95,7 @@ void Stack_Destroy(Stack *stack)
 
 	while (!Stack_IsEmpty(stack)) //pokud neni prazdny
 	{
-		top_ithem *item=NULL;
+		ptrItem *item=NULL;
 		item = stack->top;
 		stack->top = item->next;
 		free(item);
@@ -113,13 +108,13 @@ void Stack_Destroy(Stack *stack)
 // int Stack_InsertBeforeNonTerm(Stack *stack, int type,char* data)
 // {
 
-// 	top_ithem* tmp = Stack_Top_Ptr(stack);
-// 	top_ithem* previous = NULL;
+// 	ptrItem* tmp = Stack_Top_Ptr(stack);
+// 	ptrItem* previous = NULL;
 // 	while (tmp!= NULL)
 // 	{
 // 		if (tmp->type < I_HALT)
 // 		{
-// 			top_ithem *novy = malloc(sizeof(top_ithem));
+// 			ptrItem *novy = malloc(sizeof(ptrItem));
 // 			if (novy == NULL)
 // 			{
 // 				exit(99);
@@ -145,22 +140,20 @@ void Stack_Destroy(Stack *stack)
 // 	return 0;
 //}
 
-
-
-
-top_ithem* Stack_Top_Ptr( Stack* stack){
+ptrItem* Stack_Top_Ptr( Stack* stack){
 
 	if (Stack_IsEmpty(stack)) //pokud je prazdny nejsou v nem data
 	{
 		exit(99);
 	}
-	top_ithem* top = stack->top;
+	ptrItem* top = stack->top;
 	return top;
 
 }
 
 void Stack_Print(Stack* stack){
-	top_ithem* tmp = stack->top;
+	printf("\nsup\n");
+	ptrItem* tmp = stack->top;
 	printf("-------------STACK PRINT-------- ID types z expression.h \n");
 	while(tmp!=NULL)
 	{
