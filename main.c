@@ -10,6 +10,8 @@
 #include "error.h"
 
 
+
+
 int main(int argc, char const *argv[])
 {
 	FILE* file = stdin;

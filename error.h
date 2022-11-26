@@ -15,7 +15,7 @@
 
 
 typedef enum error_code {
-    ERROR_OK = 69, // není chyba
+    ERROR_OK = 0, // není chyba
     ERROR_LEX = 1,
     ERROR_SYNTAX = 2,
     ERROR_SEM_DEF = 3,
@@ -27,9 +27,3 @@ typedef enum error_code {
     ERROR_PROGRAM = 99, 
 } error_code;
 
-
-int print_errors(int error)
-{
-    printf("%d", error);
-    return 0;
-}
