@@ -3,15 +3,22 @@
  * @author xnovos14
  * @brief Implentace pomocnych funkci pro zasobnik
 */
+#include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include "stack.h"
+#include "error.h"
+#include "scanner.h"
+
 
 
 
 void Stack_Init(Stack *stack)
 {
+	if (stack == NULL)
+        printErrorIn(ERROR_PROGRAM);
 	stack->top = NULL; // nastaveni inicializace
 }
 
@@ -40,51 +47,41 @@ int Stack_Top_Type(Stack *stack)
 	return stack->top->type; // vrati vrchol zasobniku
 }
 
-char* Stack_Top_Data(Stack *stack)
-{
 
-	if (Stack_IsEmpty(stack)) //pokud je prazdny nejsou v nem data
-	{
-		return NULL;
-	}
-
-	
-
-	return stack->top->data; // vrati vrchol zasobniku
-}
 
 
 void Stack_Pop(Stack *stack)
 {
 
-	if (!Stack_IsEmpty(stack)) //pokud neni prazdny
+	if (Stack_IsEmpty(stack)) //pokud je prazdny 
 	{
-		ptrItem *item=NULL;
-		item = stack->top;
-		stack->top = item->next;
-		// if (item->data != NULL)
-		// {
-		// 	free(item->data);
+		printErrorIn(ERROR_PROGRAM);
+	}
+	else if(!Stack_IsEmpty(stack)){
 
-		// }
-		
-
+		ptrItem *item = stack->top;
+		stack->top = stack->top->next;
 		free(item);
 	}
+
 }
 
 
-void Stack_Push(Stack *stack, int type, char *data)
+void Stack_Push(Stack *stack, int data)
 {
-	ptrItem *item = malloc(sizeof(ptrItem));
-	if (item==NULL)
-	{
-		exit(99);
-	}
-	item->type=type;
-	item->data= data;
-	item->next=stack->top;
-	stack->top=item;
+	if (stack == NULL)
+		printErrorIn(ERROR_PROGRAM);
+	else{
+		ptrItem *item = malloc(sizeof(ptrItem));
+		if (item==NULL)
+		{
+			printErrorIn(ERROR_PROGRAM);
+		}
+		item->data= data;
+		item->next=stack->top;
+		stack->top=item;
+	}	
+	
 	return;
 
 }
@@ -105,51 +102,6 @@ void Stack_Destroy(Stack *stack)
 
 }
 
-// int Stack_InsertBeforeNonTerm(Stack *stack, int type,char* data)
-// {
-
-// 	ptrItem* tmp = Stack_Top_Ptr(stack);
-// 	ptrItem* previous = NULL;
-// 	while (tmp!= NULL)
-// 	{
-// 		if (tmp->type < I_HALT)
-// 		{
-// 			ptrItem *novy = malloc(sizeof(ptrItem));
-// 			if (novy == NULL)
-// 			{
-// 				exit(99);
-// 			}
-// 			novy->type = type;
-// 			novy->data = data;
-// 			if (previous != NULL)
-// 			{
-// 				novy->next = previous->next;
-// 				previous->next = novy;
-// 			}
-// 			else{
-// 				novy->next = stack->top;
-// 				stack->top = novy;
-// 			}
-// 			return 0;
-			
-			
-// 		}
-// 		previous = tmp;
-// 		tmp = tmp->next;
-// 	}
-// 	return 0;
-//}
-
-ptrItem* Stack_Top_Ptr( Stack* stack){
-
-	if (Stack_IsEmpty(stack)) //pokud je prazdny nejsou v nem data
-	{
-		exit(99);
-	}
-	ptrItem* top = stack->top;
-	return top;
-
-}
 
 void Stack_Print(Stack* stack){
 	printf("\nsup\n");
@@ -157,10 +109,61 @@ void Stack_Print(Stack* stack){
 	printf("-------------STACK PRINT-------- ID types z expression.h \n");
 	while(tmp!=NULL)
 	{
-		printf("%i %s \n",tmp->type,tmp->data);
+		printf("%i %d \n",tmp->type,tmp->data);
 		tmp = tmp->next;
 	}
 	printf("---konec printu-----\n");
 
 
+}
+
+//==================================== String stack
+
+
+void stack_init_string(tStack_string* s) {
+	if (s == NULL)
+		printErrorIn(ERROR_PROGRAM);
+	else
+		s->top = NULL;
+}
+
+bool stack_empty_string(tStack_string* s) {
+    if (s == NULL)
+		return true;
+    else
+        return false;
+}
+
+char * stack_top_string(tStack_string* s) {
+	if (stack_empty_string(s) || stack_empty_string(s))
+		printErrorIn(ERROR_PROGRAM);
+	else
+		return s->top->data;
+
+	return NULL;
+}
+
+void stack_pop_string(tStack_string* s) {
+	if (s == NULL)
+		printErrorIn(ERROR_PROGRAM);
+	else if (!stack_empty_string(s)) {
+            tElem_string* del = NULL;
+			del = s->top;
+            s->top = s->top->next;
+			free(del);
+        }
+}
+
+void stack_push_string(tStack_string* s, char * data) {
+	if (s == NULL)
+		printErrorIn(ERROR_PROGRAM);
+	else {
+        tElem_string* insert = (tElem_string*)malloc(sizeof(tElem_string));
+        if (insert == NULL)
+		printErrorIn(ERROR_PROGRAM);
+
+        insert->data = data;
+        insert->next = s->top;
+        s->top = insert;
+	}
 }

@@ -6,188 +6,268 @@
 
 #include <stdio.h>
 #include <ctype.h>
-
 #include <stdlib.h>
 #include "error.h"
 #include "scanner.h"
 #include "stack.h"
+#include <errno.h>
+
+
+int printError(error_code_t err, token_t *token);
+
 
 
  
 int state;
 int line_count = 1;
+int first_token = 1;
 Stack s;
 
-/*
-* Funkcia nevracia token, iba spracuvava znazky.
-* 3 moznosti co tato funkcia robi
-* 1. Dostane znak, ulozi ho do bufferu a bud sa posunie na dalsi stav alebo zostane v tom istom. (zalezi na stave)
-* 2. Dostane znak, je v konecnom stave automatu a znak uz nevie spracovat tak vyhlasi token za kompletny.
-* 3. Dostane znak, nieje v konecnom stave a znak nevie spracovat, tak vyhlasi lexikalnu chybu.
-*/
-void SpracujZnak(TOKEN *token) 
-{
-    char actual_char[2] = "\0"; /* gives {\0, \0} */
-    state = START;
 
 
-
-
-   while(1) {
-        actual_char[0] = fgetc(stdin);
-        printf("%c", actual_char[0]);
-		token->line = line_count;
-
-
-            char* p = actual_char;
-            Stack_Init(&s);
-            Stack_Push(&s,1,p);
-            Stack_Print(&s);
-
-
-		switch(state){
-			case START:{
-                printf("CASE START=======\n");
-                if ((actual_char[0] == '_') || (actual_char[0] >= 'a' && actual_char[0] <= 'z') || (actual_char[0] >= 'A' && actual_char[0] <= 'Z') ) {
-                    state = ID;
-                    char* p = "d";
-                    Stack_Init(&s);
-                    Stack_Push(&s,1,p);
-                    Stack_Print(&s);
-                }
-                else if (actual_char[0] >= '0' && actual_char[0] <= '9') {
-                    state = NUMBER;
-                    //initString(tokenStr);
-                    //stringPush(tokenStr,actual_char[0]);
-                }
-                else if (isspace(actual_char[0])) {
-                    ;
-                }
-                else if (actual_char[0] == EOF) {
-                    token->type = EOFile;
-                    return;
-                }
-                else {
-                    switch (actual_char[0]) {
-
-                        case '<':
-                            printf("CASE LESS=======\n");
-                            state = LESS;
-                            break;
-                        default:
-                            print_errors(ERROR_LEX);
-                            return;
-                    }
-                }
-                                            printf("CASE LESS=======\n");
-
-                break;
-            }
-
-
-            // case ID: {
-            //     if ((actual_char[0] == '_') || (actual_char[0] >= 'a' && actual_char[0] <= 'z') || (actual_char[0] >= 'A' && actual_char[0] <= 'Z') || (actual_char[0] >= '0' && actual_char[0] <= '9')) {
-            //         Stack_Push(tokenStr, actual_char[0]);
-            //         state = ID;
-            //     }
-            //     else {
-            //         lastChar = actual_char[0];
-            //         charStreamSwitch = 0;
-            //         KeywordTokenType keywordType = strToKeyword(tokenStr); // FUNCTION CHECKS IF IDENTIFIER, WHICH HAS BEEN FOUND AINT A RESERVED ( KEYWORD ) WORD
-            //         if (keywordType == KTT_None) {
-            //             token->type = STT_Identifier;
-            //             return;
-            //         }
-            //         else {
-            //             deleteString(tokenStr);
-            //             if (keywordType == KTT_True) {
-            //                 token->type = STT_Bool;
-            //                 token->n = 1;
-            //             }
-            //             else if (keywordType == KTT_False) {
-            //                 token->type = STT_Bool;
-            //                 token->n = 0;
-            //             }
-            //             else if (keywordType == KTT_Null) {
-            //                 token->type = STT_Null;
-            //             }
-            //             else if (keywordType == KTT_And) {
-            //                 token->type = STT_AndLow;
-            //             }
-            //             else if (keywordType == KTT_Or) {
-            //                 token->type = STT_OrLow;
-            //             }
-            //             else {
-            //                 token->type = STT_Keyword;
-            //                 token->keywordType = keywordType;
-            //             }
-            //             return;
-            //         }
-            //     }
-            //     break;
-            // }
-
-
-                printf("CASE LESS=======\n");
-            case LESS:{         
-                if (actual_char[0] == '=') {
-                    token->type = EQ_LESS;
-                    return;
-                }
-                else if (actual_char[0] == '?') {
-                    state = HEADER;
-                }
-                else {
-                    //lastChar = actual_char[0];
-                    //charStreamSwitch = 0;
-                    token->type = LESS;
-                    return;
-                }
-                break;
-            }
-
-            case HEADER: {
-                if (actual_char[0] == 'p') {
-                    state = HEADER1;
-                }
-                else {
-                    print_errors(ERROR_LEX);
-                    return;
-                }
-                break;
-            }
-            case HEADER1: {
-                if (actual_char[0] == 'h') {
-                    state = HEADER2;
-                }
-                else {
-                    print_errors(ERROR_LEX);
-                    return;
-                }
-                break;
-            }
-            case HEADER2: {
-                if (actual_char[0] == 'p') {
-                    state = HEADER3;
-                }
-                else {
-                    print_errors(ERROR_LEX);
-                    return;
-                }
-                break;
-            }
-            case HEADER3: {
-                if (isspace(actual_char[0])) {
-                    token->type = TK_PHP;
-                    return;
-                }
-                else {
-                    print_errors(ERROR_LEX);
-                    return;
-                }
-            }
-        }
-        return;
+int printError(error_code_t err, token_t *token){
+    switch(err){
+        case ERROR_LEX:
+            fprintf(stderr, "Faul at line %d: ERROR_LEX\n", token->line);
+            return err;
+        case ERROR_SYNTAX:
+            fprintf(stderr, "Faul at line %d: ERROR_SYNTAX\n", token->line);
+            return err;
+        case ERROR_SEM_DEF:
+            fprintf(stderr, "Faul at line %d: ERROR_SEM_DEF\n", token->line);
+            return err;
+        case ERROR_SEM_PARAM:
+            fprintf(stderr, "Faul at line %d: ERROR_SEM_PARAM\n", token->line);
+            return err;
+        case ERROR_SEM_UNDEF_VAR:
+            fprintf(stderr, "Faul at line %d: ERROR_SEM_UNDEF_VAR\n", token->line);
+            return err;
+        case ERROR_SEM_FUNC_RET:
+            fprintf(stderr, "Faul at line %d: ERROR_SEM_FUNC_RET\n", token->line);
+            return err;
+        case ERROR_SEM_TYPE:
+            fprintf(stderr, "Faul at line %d: ERROR_SEM_TYPE\n", token->line);
+            return err;
+        case ERROR_SEM_OTHER:
+            fprintf(stderr, "Faul at line %d: ERROR_SEM_OTHER\n", token->line);
+            return err;
+        default:
+            return err;
     }
-    return;
 }
+
+int printErrorIn(error_code_t err){
+        fprintf(stderr, " %d Inner programm error\n", err);
+        return err;
+}
+
+
+char two_digit_hex_to_dec (char first, char second) {
+    char dec = 0;
+
+    if (isdigit(first))
+        dec = 16 * (first - '0');
+    else if (first >= 'A' && first <= 'F')
+        dec = 16 * (first - 'A' + 10);
+    else
+        dec = 16 * (first - 'a' + 10);
+
+    if (isdigit(second))
+        dec += second - '0';
+    else if (second >= 'A' && second <= 'F')
+        dec += second - 'A' + 10;
+    else
+        dec += second - 'a' + 10;
+    return dec;
+}
+
+
+
+int str_to_int(char* string_number) {
+    long int int_number = 0;
+
+    while (*string_number) {
+        if (int_number > (int)((unsigned)(-1)/2)) {
+            return 1;
+        }
+        int_number *= 10;
+        int_number += (string_number[0]-48);
+        string_number++;
+    }
+
+    return int_number;
+}
+
+char* convert_to_str(char* input) {
+    size_t shift_left = 0;
+    int state = STRING_START;
+    char* input_cp = input;
+
+    if (input[strlen(input) - 1] == '"') { //pokud se jedna o literal uvozeny """string"""
+        input[strlen(input) - 1] = '\0';
+        input[strlen(input) - 1] = '\0';
+        input[strlen(input) - 1] = '\0';
+    }
+    else //pokud se jedna o literal uvozeny 'string'
+        input[strlen(input) - 1] = '\0'; //posledni znak (apostrof) nahradim ukoncujicim znakem
+
+    while (*input_cp) {
+        switch (state){
+            case STRING_START:
+                if (*input_cp == '\\')
+                    state = ESCAPE_CHAR;
+                else if (*input_cp == '\r') { //pokud se jedna o CR, tak musí nasledovat LF
+                    *(input_cp - shift_left) = *input_cp;
+                    if (*(input_cp + 1) != '\n') //zkontrolujeme, zda opravdu nasleduje LF
+                        printError(ERROR_LEX, NULL);
+                }
+                else
+                    *(input_cp - shift_left) = *input_cp; //kopirovani normalnich znaku na prislusne misto
+                break;
+
+            case ESCAPE_CHAR:
+                if (*input_cp == 'x') {
+                    shift_left += 3; //jelikoz nahradime ctyr-znakovou sekvenci za jeden znak
+                    state = HEX_CHAR;
+                    break;
+                }
+
+                shift_left += 1; //jelikoz nahradime dvou-znakovou sekvenci za jeden znak
+                if (*input_cp == '\"')
+                    *(input_cp - shift_left) = '\"';
+                else if (*input_cp == '\'')
+                    *(input_cp - shift_left) = '\'';
+                else if (*input_cp == 'n')
+                    *(input_cp - shift_left) = '\n';
+                else if (*input_cp == 't')
+                    *(input_cp - shift_left) = '\t';
+                else if (*input_cp == '\\') //jina moznost nenastane, to je osetreno v hlavnim fsm
+                    *(input_cp - shift_left) = '\\';
+                else {
+                    shift_left--;
+                    *(input_cp - shift_left -1) = '\\';
+                    *(input_cp - shift_left) = *input_cp;
+                }
+                state = STRING_START;
+                break;
+
+            case HEX_CHAR:
+                input_cp++; //musime rucne posunout, jelikoz zpracovavame dva znaky najednou
+                //vezmeme aktualni a predchozi znak, prevedeme je do desitkove soustavy a ulozime do pole
+                *(input_cp - shift_left) = two_digit_hex_to_dec(*(input_cp - 1), *input_cp);
+                state = STRING_START;
+                break;
+        } //switch
+        input_cp++;
+    } //while
+
+    *(input_cp - shift_left) = '\0'; //posunuti ukoncovaciho znaku
+
+    //realokace podle aktualni delky, delka noveho retezce je <= delka stareho
+    return input;
+}
+
+
+
+
+int iskeyword(char *s){
+    if (!strcmp((const char*)s, "else")){
+        return KEY_ELSE;
+     } 
+    if (!strcmp((const char*)s, "float")){
+        return KEY_FLOAT;
+    }   
+    if (!strcmp((const char*)s, "function")){
+        return KEY_FUNCTION;
+    }    
+    if (!strcmp((const char*)s, "if")){
+        return KEY_IF;
+    }  
+    if (!strcmp((const char*)s, "while")){
+        return KEY_WHILE;
+    }   
+    if (!strcmp((const char*)s, "int")){
+        return KEY_INT;
+    }   
+    if (!strcmp((const char*)s, "null")){
+        return KEY_NULL;
+    }   
+    if (!strcmp((const char*)s, "return")){
+        return KEY_RETURN;
+    }   
+    if (!strcmp((const char*)s, "string")){
+        return KEY_STRING;
+    }     
+    if (!strcmp((const char*)s, "void")){
+        return KEY_VOID;
+    }
+        
+    return NOT_KEY; // if not keyword
+}
+
+
+
+
+
+
+token_t create_token(int token_id, token_value value){
+    token_t token;
+    token.type = token_id;
+    int tmp = 0;
+
+    switch (token_id){
+        case TK_DOUBLE:
+            token.value.double_value = strtod(value.string , NULL);
+            if (errno == ERANGE)
+                printError(ERROR_SEM_TYPE, &token); //pri preteceni nebo podteceni
+            free(value.string);
+            break;
+
+        case TK_ID:
+            if (tmp == iskeyword(value.string)) { //pokud se jedna o klicove slovo, tak je v tmp jeho id, jinak 0
+                token.type = TK_KWRD;
+                token.value.keyword_value = tmp;
+                free(value.string);
+            }
+            else     //pokud se jedna o identifikator pouze uloz jeho jmeno
+                token.value.string = value.string;
+            break;
+
+        case TK_STRING:
+            token.value.string = convert_to_str(value.string);
+            break;
+
+        case TK_INT:
+            token.value.int_value = str_to_int(value.string);
+            break;
+
+
+        default:
+            token.value = value;
+            break;
+    } //switch
+
+    return token;
+}
+
+
+token_t get_token(FILE *src_file) 
+{
+    state = START;
+    token_value value;
+    static Stack stack;
+
+    if (first_token == 1) {
+            first_token = 0; //dalsi tokeny uz se neprovede
+            Stack_Init(&stack);
+            Stack_Push(&stack, 0); //vlozeni pomocne 0
+            Stack_Print(&stack);
+    }
+
+    return create_token(TK_EOL, value);  
+    
+}
+
+
+
+

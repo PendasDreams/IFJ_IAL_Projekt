@@ -8,23 +8,17 @@
 #include <stdio.h>
 #include "scanner.h"
 #include "error.h"
+#include "parser.h"
 
 
 
 
 int main(int argc, char const *argv[])
 {
-	FILE* file = stdin;
-	if (argc == 2) {
-		file = fopen(argv[1], "r");
-	}
-	if (file == NULL) {
-		file = stdin;
-	}
+	process();
 
-    TOKEN token;
-    SpracujZnak(&token);
-    fclose(file);
-    
+
+
+
 	return 0;
 }

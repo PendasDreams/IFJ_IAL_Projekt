@@ -4,7 +4,9 @@
  * @brief Deklarace pomocnych funkci pro zasobnik
 */
 
-#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 
 
@@ -15,7 +17,7 @@ typedef struct item {
 
 	struct item *next;
 	int type;
-	char* data;
+	int data;
 
 }ptrItem;
 
@@ -28,6 +30,19 @@ typedef struct
 	ptrItem *top;
 
 } Stack;
+
+typedef struct telem_string{
+    char * data;
+    struct telem_string* next;
+} tElem_string;
+
+typedef struct {
+        tElem_string* top;
+} tStack_string;
+
+
+
+
 
 
 
@@ -82,7 +97,7 @@ void Stack_Pop( Stack* stack );
  * @param value int k vložení
  * @param data data ulozena v tokenu
  */
-void Stack_Push( Stack* stack,int value,char *data);
+void Stack_Push( Stack* stack,int data);
 
 /**
  * @brief Zniceni zasobniku, free pameti
@@ -108,5 +123,11 @@ void Stack_Print( Stack* stack);
  * @param type int k vložení
  */
 int Stack_InsertBeforeNonTerm(Stack *stack, int type,char* data);
+
+void stack_init_string (tStack_string* s);
+bool stack_empty_string (tStack_string* s);
+char * stack_top_string (tStack_string* s);
+void stack_pop_string (tStack_string* s);
+void stack_push_string (tStack_string* s, char * data);
 
 #endif

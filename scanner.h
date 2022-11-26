@@ -5,32 +5,42 @@
  */
 
 
+
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <stdbool.h>
+
+
+#define NO_PARAM (token_value)0 //pouzit, pokud token nema zadny parametr
+
+
 // keywords
 
-typedef enum TK_KW{
+typedef enum{
+    NOT_KEY,
+    KEY_ELSE , 
+    KEY_FLOAT, 
+    KEY_FUNCTION, 
+    KEY_IF, 
+    KEY_INT , 
+    KEY_NULL , 
+    KEY_RETURN , 
+    KEY_STRING ,
+    KEY_VOID , 
+    KEY_WHILE
     
-    KEY_BOOL = 100,
-    
-    KEY_ELSE = 101, 
-    KEY_FLOAT = 102, 
-    KEY_FUNCTION = 103, 
-    KEY_IF = 104, 
-    KEY_INT = 105, 
-    KEY_NULL = 106, 
-    KEY_RETURN = 107, 
-    KEY_STRING = 108,
-    KEY_VOID = 109, 
-    KEY_WHILE = 110,
-    KEY_DECLARE = 111
 
 } TK_KW_T;
 
 
 // typ tokenu
 
-typedef enum TK_TYPE{
+typedef enum{
     TK_ID,
-    TK_KW,
+    TK_KWRD,
     TK_ADD,
     TK_SUB,
     TK_MUL,
@@ -54,14 +64,18 @@ typedef enum TK_TYPE{
     TK_CONCAT,
     TK_EOF,
     TK_EOL,
-    TK_PHP
+    TK_PHP,
+    TK_DOUBLE,
+    TK_INT,
+    TK_STRING
+
 
 } TK_TYPE;
 
 
 // stav automatu
 
-typedef enum FSM_STATE {
+typedef enum {
     START,                  
     DOLLAR,                 // $ variable identificator
     ID,
@@ -103,21 +117,72 @@ typedef enum FSM_STATE {
     HEADER3
 } STATE;
 
-typedef struct TOKEN{
+
+
+typedef union {
+    char* string;
+    double double_value;
+    int int_value;
+    TK_KW_T keyword_value;
+    int noparam;
+} token_value;
+
+
+typedef struct token_t {
     TK_TYPE type;
-    TK_KW_T keyword;
-    char *data;
+    token_value value;
     int line;
-} TOKEN;
+} token_t;
 
-// typedef struct token
-// {
-//     TK_TYPE TokenType;
-//     char Token[20]; // TODO dynamicky alokovany pole
-//     int line;
-// } token_T;
+typedef enum {
+    STRING_START,
+    ESCAPE_CHAR,
+    HEX_CHAR
+}str_conv_fsm_states;
 
 
-void  SpracujZnak(TOKEN *token);
+
+typedef enum error_code {
+    ERROR_OK , // není chyba
+    ERROR_LEX,
+    ERROR_SYNTAX ,
+    ERROR_SEM_DEF,
+    ERROR_SEM_PARAM ,
+    ERROR_SEM_UNDEF_VAR ,
+    ERROR_SEM_FUNC_RET,
+    ERROR_SEM_TYPE ,
+    ERROR_SEM_OTHER ,
+    ERROR_PROGRAM , 
+} error_code_t;
+
+
+
+typedef enum errCode {
+    ERR_OK,
+    ERR_LEX,
+    ERR_PARSE,
+    ERR_SEM_DEF,
+    ERR_SEM_ASSIGN,
+    ERR_SEM_PARAM,
+    ERR_SEM_TYPE,
+    ERR_SEM_OTHER,
+    ERR_NIL,
+    ERR_ZERO
+} ErrCode;
+
+
+
+
+int printError(error_code_t err, token_t *token);
+int printErrorIn(error_code_t err);
+
+
+
+
+
+token_t get_token(FILE* src_file);
+
+
+
 
 
