@@ -110,7 +110,6 @@ void Stack_Destroy(Stack *stack)
 
 
 void Stack_Prin_INT(Stack* stack){
-	printf("\nsup\n");
 	ptrItem* tmp = stack->top;
 	printf("-------------STACK PRINT-------- ID types z expression.h \n");
 	while(tmp!=NULL)

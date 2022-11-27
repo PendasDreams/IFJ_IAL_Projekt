@@ -113,9 +113,6 @@ typedef enum {
     EOFile,
     EOLine,
     HEADER,
-    HEADER1,
-    HEADER2,
-    HEADER3
 } STATE;
 
 
@@ -177,7 +174,6 @@ typedef enum errCode {
 int printError(error_code_t err, token_t *token);
 int printErrorIn(error_code_t err);
 
-#define push_char_back(x) fseek(src_file, -(x), SEEK_CUR)
 
 
 
