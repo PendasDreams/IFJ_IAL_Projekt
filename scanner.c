@@ -342,16 +342,17 @@ token_t get_token(FILE *src_file)
                 printf("this is new line");
                 return create_token(EOLine, value);
             }
-            if (actual_charr == '<'){state = LESS;break;}
+            if ( actual_charr == '<'){state = LESS;break;}
             if (actual_charr  == '_' || ((actual_charr >= 'a' && actual_charr <= 'z') || (actual_charr >= 'A' && actual_charr <= 'Z') || (actual_charr == '_'))) {Stack_Push(&stack, actual_charr);
                 char_counter++;state = ID;break;}
             if (actual_charr  == '?' ) {state = TYPE_ID;break;}
-            if (actual_charr == ' ' || actual_charr == '\t') {state = LESS; break;}
+            if (actual_charr == ' ' || actual_charr == '\t' || isspace(actual_charr)) {state = SPACE; break;}
             if (actual_charr == '(') {state = PAR_LEFT;ungetc(actual_charr, stdin); break;}
             if (actual_charr == ')') {state = PAR_RIGHT;ungetc(actual_charr, stdin); break;}
-            if (actual_charr == '=') {state = EQ; break;}
+            if (actual_charr == '=') {state = EQ;ungetc(actual_charr,stdin); break;}
             if (isdigit(actual_charr)) {state = NUMBER; char_counter++; Stack_Push(&stack, actual_charr); break;}
             if (actual_charr == ';') {return create_token(SEMI_COLON,value);}
+            if (actual_charr == '/') {state = DIV;ungetc(actual_charr,stdin);; break;}
 
         case ID:
             printf("====== ID STATE\n");
@@ -407,7 +408,7 @@ token_t get_token(FILE *src_file)
                 // }
                 else {
                     ungetc(actual_charr,stdin);
-                    create_token(TK_INT,value);
+                    return create_token(TK_INT,value);
                     
                 }
                 break;
@@ -441,11 +442,56 @@ token_t get_token(FILE *src_file)
 
             return create_token(TK_PAR_LEFT, value);
         }
+        case SPACE:{
+            printf("====== SPACE STATE\n");
+            while(isspace(actual_charr) || actual_charr == '\t'){
+                actual_charr = getc(stdin);
+                
+            }
+            ungetc(actual_charr,stdin);
+            state = START;
+            break;
+            
+        }
 
         case PAR_RIGHT:{
             printf("====== PAR RIGHT STATE\n");
 
             return create_token(TK_PAR_RIGHT, value);
+        }
+        case COMMENT:{
+            printf("====== COMMENT STATE\n");
+
+            while(actual_charr != '\n'){
+                actual_charr = getc(stdin);    
+            }
+            state = START;
+            break;
+        }
+        case BLOCK_COMMENT:{
+            printf("====== BLOCK_COMMENT STATE\n");
+
+            return create_token(TK_PAR_RIGHT, value);
+        }
+        case DIV:{
+            printf("====== DIV STATE\n");
+            actual_charr = getc(stdin);       
+            if(actual_charr == '/'){
+                state = COMMENT;
+                ungetc(actual_charr,stdin);
+                break;
+
+            }
+            else if( actual_charr == '*'){
+                state = BLOCK_COMMENT;
+                ungetc(actual_charr,stdin);
+                break;
+            }
+            else{   
+                ungetc(actual_charr,stdin);
+                return create_token(DIV, value);
+            }
+            
         }
 
         case EQ:{
@@ -454,17 +500,17 @@ token_t get_token(FILE *src_file)
             actual_charr = getc(stdin); 
             if(actual_charr == '='){
                 state = TK_COMPARSION;
+                ungetc(actual_charr,stdin);
                 break;
             }
             ungetc(actual_charr,stdin);
-            return create_token(TK_PAR_LEFT, value);
+            return create_token(EQ, value);
         }
         case TK_COMPARSION:{
             printf("====== TK_COMPARSION STATE\n");
 
             actual_charr = getc(stdin); 
             if(actual_charr != '='){
-                ungetc(actual_charr,stdin);
                 printErrorIn(ERR_LEX);
             }
             else{
