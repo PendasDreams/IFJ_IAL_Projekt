@@ -16,9 +16,6 @@
 int main(int argc, char const *argv[])
 {
 	process();
-
-
-
-
+	
 	return 0;
 }

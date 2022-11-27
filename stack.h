@@ -17,13 +17,9 @@ typedef struct item {
 
 	struct item *next;
 	int type;
-	int data;
+	char data;
 
 }ptrItem;
-
-// type 1 = char
-// type 2 = int
-
 
 typedef struct 
 {
@@ -97,7 +93,7 @@ void Stack_Pop( Stack* stack );
  * @param value int k vložení
  * @param data data ulozena v tokenu
  */
-void Stack_Push( Stack* stack,int data);
+void Stack_Push( Stack* stack,char data);
 
 /**
  * @brief Zniceni zasobniku, free pameti
@@ -115,7 +111,13 @@ ptrItem* Stack_Top_Ptr( Stack* stack);
  * @brief Pomocna funkce na vytiksnuti obsahu zasobniku
  * @param stack Ukazatel na zásobník
  */
-void Stack_Print( Stack* stack);
+void Stack_Print_INT( Stack* stack);
+
+/**
+ * @brief Pomocna funkce na vytiksnuti obsahu zasobniku
+ * @param stack Ukazatel na zásobník
+ */
+void Stack_Print_C( Stack* stack);
 
 /**
  * @brief Pomocna funkce ktera vlozi znak pred NON_TERM na zasobniku

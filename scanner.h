@@ -14,7 +14,6 @@
 #include <stdbool.h>
 
 
-#define NO_PARAM (token_value)0 //pouzit, pokud token nema zadny parametr
 
 
 // keywords
@@ -30,7 +29,8 @@ typedef enum{
     KEY_RETURN , 
     KEY_STRING ,
     KEY_VOID , 
-    KEY_WHILE
+    KEY_WHILE,
+    KEY_DECLARE
     
 
 } TK_KW_T;
@@ -79,6 +79,7 @@ typedef enum {
     START,                  
     DOLLAR,                 // $ variable identificator
     ID,
+    TYPE_ID,
     VARIABLE,               // variable
     NUMBER,                 // number
     DIV,                    // /
@@ -175,6 +176,8 @@ typedef enum errCode {
 
 int printError(error_code_t err, token_t *token);
 int printErrorIn(error_code_t err);
+
+#define push_char_back(x) fseek(src_file, -(x), SEEK_CUR)
 
 
 

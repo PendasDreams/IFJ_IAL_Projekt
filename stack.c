@@ -17,9 +17,16 @@
 
 void Stack_Init(Stack *stack)
 {
-	if (stack == NULL)
+	if (stack == NULL){
         printErrorIn(ERROR_PROGRAM);
-	stack->top = NULL; // nastaveni inicializace
+
+	}
+	
+	else{
+
+		stack->top = NULL; // nastaveni inicializace
+	}
+	
 }
 
 
@@ -29,7 +36,6 @@ bool Stack_IsEmpty(Stack* stack)
 	{
 		return true;
 	}
-	
 	return false; //pokud je index rovny inicializaci vratim true
 }
 
@@ -67,7 +73,7 @@ void Stack_Pop(Stack *stack)
 }
 
 
-void Stack_Push(Stack *stack, int data)
+void Stack_Push(Stack *stack, char data)
 {
 	if (stack == NULL)
 		printErrorIn(ERROR_PROGRAM);
@@ -103,13 +109,27 @@ void Stack_Destroy(Stack *stack)
 }
 
 
-void Stack_Print(Stack* stack){
+void Stack_Prin_INT(Stack* stack){
 	printf("\nsup\n");
 	ptrItem* tmp = stack->top;
 	printf("-------------STACK PRINT-------- ID types z expression.h \n");
 	while(tmp!=NULL)
 	{
 		printf("%i %d \n",tmp->type,tmp->data);
+		tmp = tmp->next;
+	}
+	printf("---konec printu-----\n");
+
+
+}
+
+void Stack_Print_C(Stack* stack){
+	printf("\nsup\n");
+	ptrItem* tmp = stack->top;
+	printf("-------------STACK PRINT-------- ID types z expression.h \n");
+	while(tmp!=NULL)
+	{
+		printf("%i %c \n",tmp->type,tmp->data);
 		tmp = tmp->next;
 	}
 	printf("---konec printu-----\n");
@@ -166,4 +186,18 @@ void stack_push_string(tStack_string* s, char * data) {
         insert->next = s->top;
         s->top = insert;
 	}
+}
+
+void Stack_String_Print(tStack_string* stack){
+	printf("\nsup\n");
+	tElem_string* tmp = stack->top;
+	printf("-------------STACK PRINT-------- ID types z expression.h \n");
+	while(tmp!=NULL)
+	{
+		printf(" %s \n",tmp->data);
+		tmp = tmp->next;
+	}
+	printf("---konec printu-----\n");
+
+
 }

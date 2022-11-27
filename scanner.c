@@ -4,24 +4,29 @@
  * @brief Lexikalni analyzator
  */
 
-#include <stdio.h>
+
 #include <ctype.h>
+#include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "error.h"
 #include "scanner.h"
 #include "stack.h"
 #include <errno.h>
+#include <stdint.h>
+
 
 
 int printError(error_code_t err, token_t *token);
+#define push_char_back(x) fseek(src_file, -(x), SEEK_CUR)
 
 
 
- 
+
+char actual_charr ;
 int state;
 int line_count = 1;
 int first_token = 1;
-Stack s;
 
 
 
@@ -103,6 +108,8 @@ char* convert_to_str(char* input) {
     int state = STRING_START;
     char* input_cp = input;
 
+
+
     if (input[strlen(input) - 1] == '"') { //pokud se jedna o literal uvozeny """string"""
         input[strlen(input) - 1] = '\0';
         input[strlen(input) - 1] = '\0';
@@ -168,6 +175,39 @@ char* convert_to_str(char* input) {
 }
 
 
+char *load_to_str(Stack* stack, int char_counter){
+
+    printf("we are gere");
+    char *str = (char *)malloc(char_counter + 1);
+
+    if (str == NULL)
+        printErrorIn(ERROR_PROGRAM);
+    
+    //zkopiruje chars_loaded znaku z souboru do str
+
+    printf("\n%d\n", char_counter);
+    for (int i = char_counter; i > 0; i--){
+         str[i] = stack->top->data;
+         printf("%c", stack->top->data);
+         stack->top = stack->top->next;
+         
+
+    }
+     str[char_counter +1] = '\0';
+
+
+    printf("\n");
+
+    for(int i = 0; i <= 3; i++){
+    printf("%c", str[i]);
+        
+    }
+    printf("\n");
+
+    return str;
+}
+
+
 
 
 int iskeyword(char *s){
@@ -215,6 +255,11 @@ token_t create_token(int token_id, token_value value){
     token.type = token_id;
     int tmp = 0;
 
+
+
+
+  
+
     switch (token_id){
         case TK_DOUBLE:
             token.value.double_value = strtod(value.string , NULL);
@@ -223,7 +268,7 @@ token_t create_token(int token_id, token_value value){
             free(value.string);
             break;
 
-        case TK_ID:
+        case ID:
             if (tmp == iskeyword(value.string)) { //pokud se jedna o klicove slovo, tak je v tmp jeho id, jinak 0
                 token.type = TK_KWRD;
                 token.value.keyword_value = tmp;
@@ -251,23 +296,75 @@ token_t create_token(int token_id, token_value value){
 }
 
 
+
+//===========================================================================
+
+// printf("            \n=======================\nhow fat can this shit go ?\n==========================");
+
+
+
+
+
 token_t get_token(FILE *src_file) 
 {
     state = START;
     token_value value;
     static Stack stack;
+    char actual_char;
+    int char_counter = 0;
+    
+
+
+
+
+    int i = 1;
 
     if (first_token == 1) {
+            actual_charr = getc(stdin);    //nacteni dalsiho znaku
             first_token = 0; //dalsi tokeny uz se neprovede
             Stack_Init(&stack);
-            Stack_Push(&stack, 0); //vlozeni pomocne 0
-            Stack_Print(&stack);
+            Stack_Push(&stack, actual_charr ); //vlozeni pomocne 0
+            char_counter++;    
     }
 
-    return create_token(TK_EOL, value);  
-    
+    while(1){
+
+        i++;
+        actual_charr  = getc(stdin);    //nacteni dalsiho znaku
+
+        switch (state)
+        {
+        case START:
+            if (actual_charr  == '_' || isalpha(actual_charr )) {state = ID;}
+            if (actual_charr  == '?' ) {state = TYPE_ID;}
+
+        case ID:{
+            
+            if (actual_charr  == '_' || isalnum(actual_charr)){
+                Stack_Push(&stack, actual_charr);
+                char_counter++;                
+                state = ID;
+            }
+            else {
+                Stack_Print_C(&stack);  
+                value.string = load_to_str(&stack, char_counter);
+                return create_token(ID, value);
+            }
+            break;
+            }
+        
+        if(i == 20){
+            Stack_Print_C(&stack);
+            Stack_Destroy(&stack);
+            return create_token(TK_EOL, value);  
+        }
+    }
 }
 
+    return create_token(TK_EOL, value); 
+    printf("%c",actual_char); 
+
+}
 
 
 
