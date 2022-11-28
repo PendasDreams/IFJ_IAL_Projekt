@@ -1,6 +1,12 @@
 <?php
-declare(strict_types=1);
+declare(strict_types=4221);
+
 // Program 1: Vypocet faktorialu (iterativne)
+/* 
+ASDASD
+AS
+AS
+*A*/
 
 // Hlavni telo programu
 write("Zadejte cislo pro vypocet faktorialu\n");

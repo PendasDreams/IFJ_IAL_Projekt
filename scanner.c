@@ -85,6 +85,21 @@ char two_digit_hex_to_dec (char first, char second) {
 }
 
 
+int get_char_type(char c){
+	// 0-9
+	if( c >= '0' && c <= '9' ){
+		return 1;
+	}
+
+	// a-z,A-Z
+	if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')){
+		return 2;
+	}
+
+	return 0;
+}
+
+
 
 int str_to_int(char* string_number) {
     long int int_number = 0;
@@ -176,6 +191,7 @@ char* convert_to_str(char* input) {
 char *load_to_str(Stack* stack, int char_counter){
 
     printf("we are gere");
+    printf("char counter = %d",char_counter);
     char *str = (char *)malloc(char_counter + 1);
 
     if (str == NULL)
@@ -184,23 +200,22 @@ char *load_to_str(Stack* stack, int char_counter){
     //zkopiruje chars_loaded znaku z souboru do str
 
     printf("\n%d\n", char_counter);
-    for (int i = char_counter; i > 0; i--){
+    for (int i = char_counter -1; i >= 0; i--){
          str[i] = stack->top->data;
          printf("%c", stack->top->data);
          stack->top = stack->top->next;
          
 
     }
-     str[char_counter +1] = '\0';
 
 
-    printf("\n\n");
+    // printf("\n\n");
 
-    for(int i = 0; i <=char_counter+1 ; i++){
-    printf("%c", str[i]);
+    // for(int i = 0; i <=char_counter  ; i++){
+    // printf("%c) %d\n", str[i], i);
         
-    }
-    printf("\n\n");
+    // }
+    // printf("\n\n");
 
     return str;
 }
@@ -209,6 +224,8 @@ char *load_to_str(Stack* stack, int char_counter){
 
 
 int iskeyword(char *s){
+
+
     if (!strcmp((const char*)s, "else")){
         return KEY_ELSE;
      } 
@@ -219,6 +236,7 @@ int iskeyword(char *s){
         return KEY_FUNCTION;
     }    
     if (!strcmp((const char*)s, "if")){
+        printf("\nwe are pusssieees\n");
         return KEY_IF;
     }  
     if (!strcmp((const char*)s, "while")){
@@ -238,6 +256,9 @@ int iskeyword(char *s){
     }     
     if (!strcmp((const char*)s, "void")){
         return KEY_VOID;
+    }
+    if (!strcmp((const char*)s, "declare")){
+        return KEY_DECLARE;
     }
         
     return NOT_KEY; // if not keyword
@@ -266,8 +287,12 @@ token_t create_token(int token_id, token_value value){
             free(value.string);
             break;
 
-        case ID:
-            if (tmp == iskeyword(value.string)) { //pokud se jedna o klicove slovo, tak je v tmp jeho id, jinak 0
+        case TK_ID:
+            if(iskeyword(value.string)==11){
+                token.type = TK_PHP;
+                break;
+            }
+            if (tmp != iskeyword(value.string)) { //pokud se jedna o klicove slovo, tak je v tmp jeho id, jinak 0
                 token.type = TK_KWRD;
                 token.value.keyword_value = tmp;
                 free(value.string);
@@ -318,14 +343,13 @@ token_t get_token(FILE *src_file)
     if (first_token == 1) {
             first_token = 0; //dalsi tokeny uz se neprovede
             Stack_Init(&stack);
-            Stack_Push(&stack, 0); //vlozeni pomocne 0
             char_counter++;    
     }
 
     while(1){
 
             actual_charr = getc(stdin);    //nacteni dalsiho znaku
-            printf("actual character: %c \n", actual_charr);
+            printf("\nWHILE LOOP START   actual character: %c ", actual_charr);
             
 
         i++;
@@ -335,27 +359,99 @@ token_t get_token(FILE *src_file)
         {
         case START:
 
-            printf("====== START STATE \n");
-            printf("actual charr: %c\n", actual_charr );
+            printf("\n====== START STATE ");
+            printf("actual charracter: %c", actual_charr );
 
             if (actual_charr == '\n') {
                 printf("this is new line");
-                return create_token(EOLine, value);
+                return create_token(TK_EOL, value);
             }
-            if ( actual_charr == '<'){state = LESS;break;}
-            if (actual_charr  == '_' || ((actual_charr >= 'a' && actual_charr <= 'z') || (actual_charr >= 'A' && actual_charr <= 'Z') || (actual_charr == '_'))) {Stack_Push(&stack, actual_charr);
-                char_counter++;state = ID;break;}
+            if (actual_charr == EOF) {state = EOFile; break;}
+            if (actual_charr == '<'){state = LESS;break;}
+            if (actual_charr == '>'){state = GREATER;break;}
+            if (actual_charr  == '_' || ((actual_charr >= 'a' && actual_charr <= 'z') || (actual_charr >= 'A' && actual_charr <= 'Z') || (actual_charr == '_'))) {ungetc(actual_charr,stdin);
+                state = ID;break;}
             if (actual_charr  == '?' ) {state = TYPE_ID;break;}
-            if (actual_charr == ' ' || actual_charr == '\t' || isspace(actual_charr)) {state = SPACE; break;}
+            if (actual_charr == ' ' || actual_charr == '\t' || isspace(actual_charr)) {state = SPACE;ungetc(actual_charr,stdin); break;}
             if (actual_charr == '(') {state = PAR_LEFT;ungetc(actual_charr, stdin); break;}
             if (actual_charr == ')') {state = PAR_RIGHT;ungetc(actual_charr, stdin); break;}
             if (actual_charr == '=') {state = EQ;ungetc(actual_charr,stdin); break;}
             if (isdigit(actual_charr)) {state = NUMBER; char_counter++; Stack_Push(&stack, actual_charr); break;}
-            if (actual_charr == ';') {return create_token(SEMI_COLON,value);}
-            if (actual_charr == '/') {state = DIV;ungetc(actual_charr,stdin);; break;}
+            if (actual_charr == ';') {return create_token(TK_SEMI_COLON,value);}\
+            if (actual_charr == '{') {return create_token(TK_LEFT_CURLY_BRACKET,value);}
+            if (actual_charr == '}') {return create_token(TK_RIGHT_CURLY_BRACKET,value);}
+            if (actual_charr == '/') {state = DIV; break;}
+            if (actual_charr == '"') {state = STRING; break;}
+            if (actual_charr == '$') {state = DOLLAR; break;}
+            if (actual_charr == ':') {state = COLON; break;}
+            if (actual_charr == '*') {state = MUL; break;}
+            if (actual_charr == ',') {state = COMMA; break;}
+            if (actual_charr == '!') {state = NEG_COMPARSION;ungetc(actual_charr,stdin); break;}
+
+
+        case NEG_COMPARSION:
+            printf("\n====== NEG_COMPARSION STATE");
+            for(int i = 0; i <= 1; i++){
+                actual_charr = getc(stdin);
+                if(actual_charr != '='){
+                    printErrorIn(ERROR_LEX);
+
+                }
+
+            }
+
+            return create_token(TK_NEG_COMPARSION,value);
+        case COMMA:
+            printf("\n====== MUL STATE");
+            return create_token(TK_COMMA,value);
+
+        case MUL:
+            printf("\n====== MUL STATE");
+            return create_token(TK_MUL,value);
+
+        case COLON:
+            printf("\n====== COLON STATE");
+            return create_token(TK_COLON,value);
+
+
+        case DOLLAR:
+            printf("\n====== DOLLAR STATE");
+                if (isalpha(actual_charr) || actual_charr == '_') {
+                    state = VARIABLE;
+                    char_counter++;
+                    Stack_Push(&stack,actual_charr);
+                    break;
+                }
+                else {
+                printErrorIn(ERROR_LEX);
+                }
+                break;
+
+         case EOFile: {
+                printf("\n====== EOF STATE");
+                
+                    return create_token(TK_EOF,value);
+                
+            }
+            
+         case VARIABLE: {
+                printf("\n====== VARIABLE STATE");
+                if (isalnum(actual_charr) || (actual_charr == '_')) {
+                    char_counter++;
+                    Stack_Push(&stack,actual_charr);
+                    state = VARIABLE;
+                }
+                else {
+                    Stack_Print_C(&stack);  
+                    value.string = load_to_str(&stack, char_counter);
+                    ungetc(actual_charr, stdin); 
+                    return create_token(TK_VARIABLE,value);
+                }
+                break;
+            }
 
         case ID:
-            printf("====== ID STATE\n");
+            printf("\n====== ID STATE  ");
             printf("actual charr: %c\n", actual_charr );
             if (actual_charr  == '_' || ((actual_charr >= 'a' && actual_charr <= 'z') || (actual_charr >= 'A' && actual_charr <= 'Z') || (actual_charr == '_')) ){
                 printf("pushiiing\n");
@@ -365,56 +461,211 @@ token_t get_token(FILE *src_file)
             }
             else {
                 Stack_Print_C(&stack);  
-                value.string = load_to_str(&stack, char_counter);{
-                    ungetc(actual_charr, stdin);
-                    return create_token(ID, value);
-                }
+                value.string = load_to_str(&stack, char_counter);
+                printf("\n%s\n",value.string);
+                ungetc(actual_charr, stdin);
+                return create_token(TK_ID, value);
+            }
+            break;
+
+        case NUMBER:
+
+
+            printf("\n====== NUMBER STATE");
+            printf("actual charr: %c\n", actual_charr );
+            if (actual_charr >= '0' && actual_charr <= '9') {
+                printf("pushiiing\n");
+                state = NUMBER;
+                Stack_Push(&stack, actual_charr);
+                char_counter++; 
+            }
+            // else if (actual_charr == '.') {
+            //     state = SS_DoubleDecPoint;
+            //     stringPush(tokenStr, symbol);
+            // }
+            // else if ((actual_charr == 'e') || (actual_charr == 'E')) {
+            //     state = SS_DoubleExponent;
+            //     stringPush(tokenStr, actual_charr);
+            // }
+            else {
+                Stack_Print_C(&stack);  
+                value.string = load_to_str(&stack, char_counter);
+                ungetc(actual_charr,stdin);
+                return create_token(TK_INT,value);
                 
             }
             break;
+
+
+        case STRING:{
+            printf("\n====== STRING STATE  ");
+            if(actual_charr == EOF){
+                printErrorIn(ERROR_LEX);
+            }
+            if(actual_charr == '"'){
+                // Vstup "" -> initializuji prazdny string
+                Stack_Print_C(&stack); 
+                value.string = load_to_str(&stack, char_counter);
+                ungetc(actual_charr, stdin);
+                return create_token(TK_STRING,value);
+            }
+            else {
+                state = STRING_CHECK_ASCII;
+                char_counter++; 
+                Stack_Push(&stack,actual_charr);
+                break;
+            }
+        }
+        case STRING_CHECK_ASCII:{
+            printf("\n====== STRING CHECK ASCII STATE  ");
+            // Neukonceny string = chyba
+            if(actual_charr == EOF){
+                printErrorIn(ERROR_LEX);
+            }
+            if((actual_charr >= ' ') && (actual_charr != '"')){
+                if(actual_charr != '\\'){
+                    char_counter++; 
+                    Stack_Push(&stack,actual_charr);
+                } 
+                else
+                    ungetc(actual_charr, stdin);
+                state = STRING_VALID;
+                break;
+            }
+            else {
+                printErrorIn(ERROR_LEX);
+            }
+            break;
+        }
+        case STRING_VALID:{
+            printf("\n====== STRING VALID STATE  ");
+				if(actual_charr == EOF){
+                printErrorIn(ERROR_LEX);
+				}
+				if(actual_charr == '\\'){
+					state = STRING_BACKSLASH;
+					break;
+				}
+				else if(actual_charr == '"'){
+                    Stack_Print_C(&stack); 
+                    value.string = load_to_str(&stack, char_counter);  
+                    printf("\n%s\n",value.string);
+					return create_token(TK_STRING,value);
+				}
+				else {
+					state = STRING_CHECK_ASCII;
+					ungetc(actual_charr, stdin);
+					break;
+				}
+        }
+        case STRING_BACKSLASH:
+            printf("\n====== STRING BACKSLASH STATE  ");
+				// Neukonceny string == chyba
+				if(actual_charr == EOF){
+                printErrorIn(ERROR_LEX);
+				}
+				if(actual_charr == '"' || actual_charr == '\\' || actual_charr == 'n' || actual_charr == 't'){
+					state = STRING_BACKSLASH_CORRECT;
+					ungetc(actual_charr, stdin);
+					break;
+				}
+				// bude to napr. \123
+				else if(get_char_type(actual_charr) == 1){
+					state = STRING_BACKSLASH_ASCII;
+					ungetc(actual_charr, stdin);
+					break;
+				}
+				else {
+                printErrorIn(ERROR_LEX);
+				}
+        // čísla
+        case STRING_BACKSLASH_ASCII:{
+            printf("\n====== STRING BACKSLASH ASCII STATE  ");
+				// Vlozim 3 znaky
+				char *str = malloc(3 + 1);
+				for(int i = 0; i < 3; i++){
+					if(get_char_type(actual_charr) == 1){
+						str[i] = actual_charr;
+					}
+					else {
+						// Chyba
+                printErrorIn(ERROR_LEX);
+					}
+					actual_charr = getc(stdin);
+				}
+				// Posledni znak chci vratit
+				ungetc(actual_charr,stdin);
+				// Nastavim ukoncovaci znak
+				str[3] = '\0';
+				// Prevod na int
+				long value = strtol(str, NULL,10);
+				int res = (int)value;
+				// Ascii hodnota pouze 1-255
+				if(res < 1 || res > 255){
+                printErrorIn(ERROR_LEX);
+				}
+				// Prevedu integer hodnotu ascii znaku na ascii znak
+				char finalChar = res;
+				free(str);
+				Stack_Push(&stack,finalChar);
+                char_counter++; 
+				state = STRING_VALID;
+				break;
+			}
+
+        case STRING_BACKSLASH_CORRECT:
+                printf("\n====== STRING_BACKSLASH_CORRECT STATE  ");
+                char_counter++; 
+				if(actual_charr == '"'){
+					Stack_Push(&stack, '\"');
+				}
+				else if(actual_charr == '\\'){
+					Stack_Push(&stack, '\\');
+				}
+				else if(actual_charr == 'n'){
+					Stack_Push(&stack, '\n');
+				}
+				// \t
+				else {
+					Stack_Push(&stack, '\t');
+				}
+				state = STRING_VALID;
+				break;
             
         case LESS:
-                printf("====== LESS STATE\n");
-                // if (symbol == '=') {
-                //     token->type = STT_LessEqual;
-                //     return;
-                // }
+                printf("\n====== LESS STATE");
+                if (actual_charr == '=') {
+                    return create_token(TK_EQ_LESS,value);
+                }
 
-                if (actual_charr == '?') {
+                else if (actual_charr == '?') {
                     state = HEADER;
                     Stack_Push(&stack, actual_charr);
                 }
-                // else {
-                //     lastChar = symbol;
-                //     charStreamSwitch = 0;
-                //     token->type = STT_Less;
-                //     return;
-                // }
-                break;
-        case NUMBER:
-                printf("====== NUMBER STATE\n");
-
-                 if (actual_charr >= '0' && actual_charr <= '9') {
-                    state = NUMBER;
-                    Stack_Push(&stack, actual_charr);
+                else if (actual_charr != '=') {
+                    return create_token(TK_LESS,value);
                 }
-                // else if (actual_charr == '.') {
-                //     state = SS_DoubleDecPoint;
-                //     stringPush(tokenStr, symbol);
-                // }
-                // else if ((actual_charr == 'e') || (actual_charr == 'E')) {
-                //     state = SS_DoubleExponent;
-                //     stringPush(tokenStr, actual_charr);
-                // }
                 else {
-                    ungetc(actual_charr,stdin);
-                    return create_token(TK_INT,value);
-                    
+                    printErrorIn(ERR_LEX);
                 }
                 break;
+
+        case GREATER:
+                printf("\n====== LESS GREATER");
+                if (actual_charr == '=') {
+                    return create_token(TK_EQ_GREATER,value);
+                }
+                else if(actual_charr != '=') {
+                    return create_token(TK_GREATER,value);
+                }
+                else{
+                    printErrorIn(ERR_LEX);
+                }
+                break;
+
         
         case HEADER:{
-            printf("====== HEADER STATE\n");
+            printf("\n====== HEADER STATE");
 
             if(actual_charr == 'p'){
                 char string_header[] = "hp";
@@ -438,12 +689,12 @@ token_t get_token(FILE *src_file)
 
 
         case PAR_LEFT:{
-            printf("====== PAR LEFT STATE\n");
+            printf("\n====== PAR LEFT STATE");
 
             return create_token(TK_PAR_LEFT, value);
         }
         case SPACE:{
-            printf("====== SPACE STATE\n");
+            printf("\n====== SPACE STATE");
             while(isspace(actual_charr) || actual_charr == '\t'){
                 actual_charr = getc(stdin);
                 
@@ -455,27 +706,41 @@ token_t get_token(FILE *src_file)
         }
 
         case PAR_RIGHT:{
-            printf("====== PAR RIGHT STATE\n");
+            printf("\n====== PAR RIGHT STATE");
 
             return create_token(TK_PAR_RIGHT, value);
         }
         case COMMENT:{
-            printf("====== COMMENT STATE\n");
+            printf("\n====== COMMENT STATE\n");
 
             while(actual_charr != '\n'){
+                printf("COMM READING > %c\n", actual_charr);      
+
                 actual_charr = getc(stdin);    
             }
             state = START;
             break;
         }
         case BLOCK_COMMENT:{
-            printf("====== BLOCK_COMMENT STATE\n");
+            printf("===== BLOCK_COMMENT STATE\n");
+            while(actual_charr != '*'){
+                actual_charr = getc(stdin);   
+                printf("BLOCK COMM READING > %c\n", actual_charr);      
+ 
+            }
+            actual_charr = getc(stdin); 
+            if(actual_charr != '/'){
+                ungetc(actual_charr,stdin);
+                state = BLOCK_COMMENT;
+                break;
+            } 
+            else{
+                state = START;
+            }
 
-            return create_token(TK_PAR_RIGHT, value);
         }
         case DIV:{
             printf("====== DIV STATE\n");
-            actual_charr = getc(stdin);       
             if(actual_charr == '/'){
                 state = COMMENT;
                 ungetc(actual_charr,stdin);
@@ -484,12 +749,11 @@ token_t get_token(FILE *src_file)
             }
             else if( actual_charr == '*'){
                 state = BLOCK_COMMENT;
-                ungetc(actual_charr,stdin);
                 break;
             }
             else{   
                 ungetc(actual_charr,stdin);
-                return create_token(DIV, value);
+                return create_token(TK_DIV, value);
             }
             
         }
@@ -504,7 +768,7 @@ token_t get_token(FILE *src_file)
                 break;
             }
             ungetc(actual_charr,stdin);
-            return create_token(EQ, value);
+            return create_token(TK_EQ, value);
         }
         case TK_COMPARSION:{
             printf("====== TK_COMPARSION STATE\n");
@@ -514,7 +778,7 @@ token_t get_token(FILE *src_file)
                 printErrorIn(ERR_LEX);
             }
             else{
-                return create_token(TK_PAR_LEFT, value);
+                return create_token(TK_COMPARSION, value);
             }
             
         }
@@ -525,7 +789,7 @@ token_t get_token(FILE *src_file)
             break;
 
 
-        if(i == 20){
+        if(i == 39){
             Stack_Print_C(&stack);
             Stack_Destroy(&stack);
             return create_token(TK_EOL, value);  

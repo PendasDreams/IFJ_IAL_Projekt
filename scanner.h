@@ -50,6 +50,7 @@ typedef enum{
     TK_OR,                  
     TK_NOT,   
     TK_GREATER,
+    TK_LESS,
     TK_EQ_GREATER,       
     TK_EQ_LESS,            
     TK_COMPARSION,        
@@ -60,14 +61,18 @@ typedef enum{
     TK_PAR_RIGHT,      
     TK_SEMI_COLON,          
     TK_COLON,                 
-    TK_LINE,                   
+    TK_LINE,  
+    TK_COMMA,               
     TK_CONCAT,
     TK_EOF,
     TK_EOL,
     TK_PHP,
     TK_DOUBLE,
     TK_INT,
-    TK_STRING
+    TK_STRING,
+    TK_LEFT_CURLY_BRACKET,
+    TK_RIGHT_CURLY_BRACKET,
+    TK_VARIABLE,
 
 
 } TK_TYPE;
@@ -101,18 +106,25 @@ typedef enum {
     NOT,                    // not
     PAR_LEFT,               // (
     PAR_RIGHT,              // )
+    LEFT_CURLY_BRACKET,     // {
+    RIGHT_CURLY_BRACKET,    // }
     SEMI_COLON,             // ;
     COLON,                  // :
-    LINE,                   // ,
+    COMMA,                   // ,
     CONCAT,                 // concatenation '.'
     COMMENT,                // commentary
     BLOCK_COMMENT,          // block commentary
     SPACE,                  // space ' '
-    STRING_LITERAL,         // string
+    STRING,         // string
     RETURN,
     EOFile,
     EOLine,
     HEADER,
+    STRING_CHECK_ASCII,
+    STRING_VALID,
+    STRING_BACKSLASH,
+    STRING_BACKSLASH_ASCII,
+    STRING_BACKSLASH_CORRECT,
 } STATE;
 
 

@@ -20,12 +20,17 @@ token_t next_token; //globalni token
 
 void process(){
 
-    for(int i = 0; i<= 10; i++){
-    printf("\n==========================================\n");
+    int i = 0;
+    //while(next_token.type != 24){
+
+    while(i <= 100){
+    
+    printf("\n %d ==========================================\n", i);
 
     next_token = get_token(stdin);
 
         printf("\nPARSER=>\n token type is %d:\n", next_token.type);   
+        i++;
     }
 
 
