@@ -81,10 +81,10 @@ typedef enum{
 // stav automatu
 
 typedef enum {
-    START,                  
+    START,                  // START
     DOLLAR,                 // $ variable identificator
-    ID,
-    TYPE_ID,
+    ID,                     // ID
+    TYPE_ID,                // TYPE ID
     VARIABLE,               // variable
     NUMBER,                 // number
     DIV,                    // /
@@ -115,16 +115,15 @@ typedef enum {
     COMMENT,                // commentary
     BLOCK_COMMENT,          // block commentary
     SPACE,                  // space ' '
-    STRING,         // string
-    RETURN,
-    EOFile,
-    EOLine,
-    HEADER,
-    STRING_CHECK_ASCII,
-    STRING_VALID,
-    STRING_BACKSLASH,
-    STRING_BACKSLASH_ASCII,
-    STRING_BACKSLASH_CORRECT,
+    STRING,                 // string
+    EOFile,                 // EOF
+    EOLine,                 // EOL
+    HEADER,                 // <?php + declare
+    STRING_CHECK_ASCII,     // string
+    STRING_VALID,           // string
+    STRING_BACKSLASH,       // string
+    STRING_BACKSLASH_ASCII, // stirng
+    STRING_BACKSLASH_CORRECT,// string
 } STATE;
 
 

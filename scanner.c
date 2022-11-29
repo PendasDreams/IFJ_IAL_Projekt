@@ -402,7 +402,7 @@ token_t get_token(FILE *src_file)
 
             return create_token(TK_NEG_COMPARSION,value);
         case COMMA:
-            printf("\n====== MUL STATE");
+            printf("\n====== COMMA STATE");
             return create_token(TK_COMMA,value);
 
         case MUL:
