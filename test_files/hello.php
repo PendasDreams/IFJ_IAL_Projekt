@@ -8,4 +8,4 @@ function hlavni_program(int $year) : void {
 }
 
 hlavni_program(22);
-hlavni_program(23); // pozdrav z budoucnosti
+hlavni_program(234); // pozdrav z budoucnosti

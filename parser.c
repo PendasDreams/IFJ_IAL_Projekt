@@ -23,7 +23,7 @@ void process(){
         int i = 0;
     while(next_token.type != TK_EOF){
 
-    //while(i <= 100){
+    //while(i <= 80){
     
     printf("\n %d ==========================================\n", i);
 

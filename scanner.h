@@ -73,6 +73,7 @@ typedef enum{
     TK_LEFT_CURLY_BRACKET,
     TK_RIGHT_CURLY_BRACKET,
     TK_VARIABLE,
+    TK_FOOTER,
 
 
 } TK_TYPE;

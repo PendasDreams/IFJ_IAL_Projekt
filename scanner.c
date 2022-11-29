@@ -386,8 +386,19 @@ token_t get_token(FILE *src_file)
             if (actual_charr == ':') {state = COLON; break;}
             if (actual_charr == '*') {state = MUL; break;}
             if (actual_charr == ',') {state = COMMA; break;}
+            if (actual_charr == '.') {state = CONCAT; break;}
             if (actual_charr == '!') {state = NEG_COMPARSION;ungetc(actual_charr,stdin); break;}
 
+
+        case TYPE_ID:
+            printf("\n====== TYPE_ID STATE");
+            if(actual_charr == '>'){
+                return create_token(TK_FOOTER,value);
+
+            }
+            else{
+                // tady bude typ of value
+            }
 
         case NEG_COMPARSION:
             printf("\n====== NEG_COMPARSION STATE");
@@ -395,15 +406,16 @@ token_t get_token(FILE *src_file)
                 actual_charr = getc(stdin);
                 if(actual_charr != '='){
                     printErrorIn(ERROR_LEX);
-
                 }
-
             }
-
             return create_token(TK_NEG_COMPARSION,value);
+
         case COMMA:
             printf("\n====== COMMA STATE");
             return create_token(TK_COMMA,value);
+        case CONCAT:
+            printf("\n====== CONCAT STATE");
+            return create_token(TK_CONCAT,value);
 
         case MUL:
             printf("\n====== MUL STATE");
@@ -444,6 +456,7 @@ token_t get_token(FILE *src_file)
                 else {
                     Stack_Print_C(&stack);  
                     value.string = load_to_str(&stack, char_counter);
+                    printf("\n%s\n",value.string);
                     ungetc(actual_charr, stdin); 
                     return create_token(TK_VARIABLE,value);
                 }
@@ -490,6 +503,7 @@ token_t get_token(FILE *src_file)
             else {
                 Stack_Print_C(&stack);  
                 value.string = load_to_str(&stack, char_counter);
+                printf("\n%s\n",value.string);
                 ungetc(actual_charr,stdin);
                 return create_token(TK_INT,value);
                 
@@ -564,7 +578,7 @@ token_t get_token(FILE *src_file)
 				if(actual_charr == EOF){
                 printErrorIn(ERROR_LEX);
 				}
-				if(actual_charr == '"' || actual_charr == '\\' || actual_charr == 'n' || actual_charr == 't'){
+				if(actual_charr == '"' || actual_charr == '\\' || actual_charr == 'n' || actual_charr == 't'|| actual_charr == '$'){
 					state = STRING_BACKSLASH_CORRECT;
 					ungetc(actual_charr, stdin);
 					break;
@@ -624,6 +638,9 @@ token_t get_token(FILE *src_file)
 				}
 				else if(actual_charr == 'n'){
 					Stack_Push(&stack, '\n');
+				}
+                else if(actual_charr == '$'){
+					Stack_Push(&stack, '$');
 				}
 				// \t
 				else {
