@@ -190,8 +190,8 @@ char* convert_to_str(char* input) {
 
 char *load_to_str(Stack* stack, int char_counter, char* str){
 
-    printf("we are gere");
-    printf("char counter = %d",char_counter);
+    //printf("we are gere");
+    //printf("char counter = %d",char_counter);
     
 
     if (str == NULL)
@@ -199,23 +199,23 @@ char *load_to_str(Stack* stack, int char_counter, char* str){
     
     //zkopiruje chars_loaded znaku z souboru do str
 
-    printf("\n%d\n", char_counter);
+    //printf("\n%d\n", char_counter);
     for (int i = char_counter -1; i >= 0; i--){
          str[i] = stack->top->data;
-         printf("%c", stack->top->data);
+         //printf("%c", stack->top->data);
          stack->top = stack->top->next;
          
 
     }
 
 
-    // printf("\n\n");
+    // //printf("\n\n");
 
     // for(int i = 0; i <=char_counter  ; i++){
-    // printf("%c) %d\n", str[i], i);
+    // //printf("%c) %d\n", str[i], i);
         
     // }
-    // printf("\n\n");
+    // //printf("\n\n");
 
     return str;
 }
@@ -226,38 +226,39 @@ char *load_to_str(Stack* stack, int char_counter, char* str){
 int iskeyword(char *s){
 
 
-    if (!strcmp((const char*)s, "else")){
+    if (strcmp((const char*)s, "else") == 0){
         return KEY_ELSE;
      } 
-    if (!strcmp((const char*)s, "float")){
+    if (strcmp((const char*)s, "float")== 0){
         return KEY_FLOAT;
     }   
-    if (!strcmp((const char*)s, "function")){
+    if (strcmp((const char*)s, "function")== 0){
         return KEY_FUNCTION;
     }    
-    if (!strcmp((const char*)s, "if")){
-        printf("\nwe are pusssieees\n");
+    if (strcmp((const char*)s, "if") == 0){
+        //printf("\nwe are pusssieees\n");
         return KEY_IF;
     }  
-    if (!strcmp((const char*)s, "while")){
+    if (strcmp((const char*)s, "while")== 0){
         return KEY_WHILE;
     }   
-    if (!strcmp((const char*)s, "int")){
+    if (strcmp((const char*)s, "int")== 0){
         return KEY_INT;
     }   
-    if (!strcmp((const char*)s, "null")){
+    if (strcmp((const char*)s, "null")== 0){
         return KEY_NULL;
     }   
-    if (!strcmp((const char*)s, "return")){
+    if (strcmp((const char*)s, "return")== 0){
         return KEY_RETURN;
     }   
-    if (!strcmp((const char*)s, "string")){
+    if (strcmp((const char*)s, "string")== 0){
         return KEY_STRING;
     }     
-    if (!strcmp((const char*)s, "void")){
+    if (strcmp((const char*)s, "void")== 0){
         return KEY_VOID;
     }
-    if (!strcmp((const char*)s, "declare")){
+    if (strcmp((const char*)s, "declare")== 0){
+        //printf("\nis keydeclare\n");
         return KEY_DECLARE;
     }
         
@@ -273,28 +274,37 @@ token_t create_token(int token_id, token_value value, Stack* stack){
     token_t token;
     token.type = token_id;
     int tmp = 0;
-
+    char skipper;
 
 
 
   
 
     switch (token_id){
-        case TK_DOUBLE:
+        case TK_FLOAT:
             token.value.double_value = strtod(value.string , NULL);
             if (errno == ERANGE)
                 printError(ERROR_SEM_TYPE, &token); //pri preteceni nebo podteceni
+            printf("TOKEN: %s\n", value.string);
             free(value.string);
             break;
 
         case TK_ID:
-            if(iskeyword(value.string)==11){
+            //printf("\n string >>%s\n", value.string);
+            printf("TOKEN: %s\n", value.string);
+
+            if(iskeyword(value.string) ==KEY_DECLARE){
+                //printf("\n creating ID token\n");
+                while(skipper != ';'){
+                    skipper =getc(stdin);
+                }
                 token.type = TK_PHP;
                 break;
             }
             if (tmp != iskeyword(value.string)) { //pokud se jedna o klicove slovo, tak je v tmp jeho id, jinak 0
                 token.type = TK_KWRD;
-                token.value.keyword_value = tmp;
+                token.value.keyword_value = iskeyword(value.string);
+                printf("\nTOKEN KW VALUE: %d\n",token.value.keyword_value);
                 free(value.string);
             }
             else     //pokud se jedna o identifikator pouze uloz jeho jmeno
@@ -303,10 +313,13 @@ token_t create_token(int token_id, token_value value, Stack* stack){
 
         case TK_STRING:
             token.value.string = convert_to_str(value.string);
+            printf("TOKEN: %s\n", value.string);
+
             break;
 
         case TK_INT:
             token.value.int_value = str_to_int(value.string);
+            printf("TOKEN: %s\n", value.string);
             break;
 
 
@@ -315,6 +328,8 @@ token_t create_token(int token_id, token_value value, Stack* stack){
             break;
     } //switch
 
+
+    printf("TYP TOKENU: %d\n", token.type);
     
     Stack_Destroy(stack);
     return token;
@@ -324,7 +339,7 @@ token_t create_token(int token_id, token_value value, Stack* stack){
 
 //===========================================================================
 
-// printf("            \n=======================\nhow fat can this shit go ?\n==========================");
+// //printf("            \n=======================\nhow fat can this shit go ?\n==========================");
 
 
 
@@ -336,7 +351,7 @@ token_t get_token(FILE *src_file)
     token_value value;
     static Stack stack;
     char actual_charr;
-    int char_counter = 0;\
+    int char_counter = 0;
     static int first_token = 1;
 
 
@@ -345,7 +360,7 @@ token_t get_token(FILE *src_file)
     if (first_token == 1) {
             first_token = 0; //dalsi tokeny uz se neprovede
             Stack_Init(&stack);
-            printf("\n\nstack was initiliyed\n\n");
+            //printf("\n\nstack was initiliyed\n\n");
 
             char_counter++;    
     }
@@ -353,7 +368,7 @@ token_t get_token(FILE *src_file)
     while(1){
 
             actual_charr = getc(stdin);    //nacteni dalsiho znaku
-            printf("\nWHILE LOOP START   actual character: %c ", actual_charr);
+            //printf("\nWHILE LOOP START   actual character: %c ", actual_charr);
             
 
         i++;
@@ -363,12 +378,13 @@ token_t get_token(FILE *src_file)
         {
         case START:
 
-            printf("\n====== START STATE ");
-            printf("actual charracter: %c", actual_charr );
+            //printf("\n====== START STATE ");
+            //printf("actual charracter: %c", actual_charr );
 
             if (actual_charr == '\n') {
-                printf("this is new line");
-                return create_token(TK_EOL, value,&stack);
+                //printf("\nthis is new line\n");
+                state = START;
+                break;
             }
             if (actual_charr == EOF) {state = EOFile; break;}
             if (actual_charr == '<'){state = LESS;break;}
@@ -395,7 +411,7 @@ token_t get_token(FILE *src_file)
 
 
         case TYPE_ID:
-            printf("\n====== TYPE_ID STATE");
+            //printf("\n====== TYPE_ID STATE");
             if(actual_charr == '>'){
                 return create_token(TK_FOOTER,value,&stack);
 
@@ -405,7 +421,7 @@ token_t get_token(FILE *src_file)
             }
 
         case NEG_COMPARSION:
-            printf("\n====== NEG_COMPARSION STATE");
+            //printf("\n====== NEG_COMPARSION STATE");
             for(int i = 0; i <= 1; i++){
                 actual_charr = getc(stdin);
                 if(actual_charr != '='){
@@ -415,23 +431,23 @@ token_t get_token(FILE *src_file)
             return create_token(TK_NEG_COMPARSION,value,&stack);
 
         case COMMA:
-            printf("\n====== COMMA STATE");
+            //printf("\n====== COMMA STATE");
             return create_token(TK_COMMA,value,&stack);
         case CONCAT:
-            printf("\n====== CONCAT STATE");
+            //printf("\n====== CONCAT STATE");
             return create_token(TK_CONCAT,value,&stack);
 
         case MUL:
-            printf("\n====== MUL STATE");
+            //printf("\n====== MUL STATE");
             return create_token(TK_MUL,value,&stack);
 
         case COLON:
-            printf("\n====== COLON STATE");
+            //printf("\n====== COLON STATE");
             return create_token(TK_COLON,value,&stack);
 
 
         case DOLLAR:
-            printf("\n====== DOLLAR STATE");
+            //printf("\n====== DOLLAR STATE");
                 if (isalpha(actual_charr) || actual_charr == '_') {
                     state = VARIABLE;
                     char_counter++;
@@ -444,24 +460,24 @@ token_t get_token(FILE *src_file)
                 break;
 
          case EOFile: {
-                printf("\n====== EOF STATE");
+                //printf("\n====== EOF STATE");
                 
                     return create_token(TK_EOF,value,&stack);
                 
             }
             
          case VARIABLE: {
-                printf("\n====== VARIABLE STATE");
+                //printf("\n====== VARIABLE STATE");
                 if (isalnum(actual_charr) || (actual_charr == '_')) {
                     char_counter++;
                     Stack_Push(&stack,actual_charr);
                     state = VARIABLE;
                 }
                 else {
-                    Stack_Print_C(&stack);
+                     //Stack_Print_C(&stack);
                     char *str = (char *)malloc(char_counter + 1);  
                     value.string = load_to_str(&stack, char_counter,str);
-                    printf("\n%s\n",value.string);
+                    //printf("\n%s\n",value.string);
                     free(str);
                     ungetc(actual_charr, stdin); 
                     return create_token(TK_VARIABLE,value,&stack);
@@ -470,20 +486,20 @@ token_t get_token(FILE *src_file)
             }
 
         case ID:
-            printf("\n====== ID STATE  ");
-            printf("actual charr: %c\n", actual_charr );
+            //printf("\n====== ID STATE  ");
+            //printf("actual charr: %c\n", actual_charr );
             if (actual_charr  == '_' || ((actual_charr >= 'a' && actual_charr <= 'z') || (actual_charr >= 'A' && actual_charr <= 'Z') || (actual_charr == '_')) ){
-                printf("pushiiing\n");
+                //printf("pushiiing\n");
                 Stack_Push(&stack, actual_charr);
                 char_counter++;                
                 state = ID;
             }
             else {
-                Stack_Print_C(&stack);  
+                 //Stack_Print_C(&stack);  
                 char *str = (char *)malloc(char_counter + 1);  
                 value.string = load_to_str(&stack, char_counter,str);
-                printf("\n%s\n",value.string);
-                free(str);
+                //printf("\n%s\n",value.string);
+                //free(str);
                 ungetc(actual_charr, stdin);
                 return create_token(TK_ID, value,&stack);
             }
@@ -492,10 +508,10 @@ token_t get_token(FILE *src_file)
         case NUMBER:
 
 
-            printf("\n====== NUMBER STATE");
-            printf("actual charr: %c\n", actual_charr );
+            //printf("\n====== NUMBER STATE");
+            //printf("actual charr: %c\n", actual_charr );
             if (actual_charr >= '0' && actual_charr <= '9') {
-                printf("pushiiing\n");
+                //printf("pushiiing\n");
                 state = NUMBER;
                 Stack_Push(&stack, actual_charr);
                 char_counter++; 
@@ -509,10 +525,10 @@ token_t get_token(FILE *src_file)
             //     stringPush(tokenStr, actual_charr);
             // }
             else {
-                Stack_Print_C(&stack);  
+                 //Stack_Print_C(&stack);  
                char *str = (char *)malloc(char_counter + 1);  
                 value.string = load_to_str(&stack, char_counter,str);
-                printf("\n%s\n",value.string);
+                //printf("\n%s\n",value.string);
                 free(str);
                 ungetc(actual_charr,stdin);
                 return create_token(TK_INT,value,&stack);
@@ -522,16 +538,16 @@ token_t get_token(FILE *src_file)
 
 
         case STRING:{
-            printf("\n====== STRING STATE  ");
+            //printf("\n====== STRING STATE  ");
             if(actual_charr == EOF){
                 printErrorIn(ERROR_LEX);
             }
             if(actual_charr == '"'){
                 // Vstup "" -> initializuji prazdny string
-                Stack_Print_C(&stack); 
+                 //Stack_Print_C(&stack); 
                 char *str = (char *)malloc(char_counter + 1);  
                 value.string = load_to_str(&stack, char_counter,str);
-                printf("\n%s\n",value.string);
+                //printf("\n%s\n",value.string);
                 free(str);
                 ungetc(actual_charr, stdin);
                 return create_token(TK_STRING,value,&stack);
@@ -544,7 +560,7 @@ token_t get_token(FILE *src_file)
             }
         }
         case STRING_CHECK_ASCII:{
-            printf("\n====== STRING CHECK ASCII STATE  ");
+            //printf("\n====== STRING CHECK ASCII STATE  ");
             // Neukonceny string = chyba
             if(actual_charr == EOF){
                 printErrorIn(ERROR_LEX);
@@ -565,7 +581,7 @@ token_t get_token(FILE *src_file)
             break;
         }
         case STRING_VALID:{
-            printf("\n====== STRING VALID STATE  ");
+            //printf("\n====== STRING VALID STATE  ");
 				if(actual_charr == EOF){
                 printErrorIn(ERROR_LEX);
 				}
@@ -574,11 +590,11 @@ token_t get_token(FILE *src_file)
 					break;
 				}
 				else if(actual_charr == '"'){
-                    Stack_Print_C(&stack); 
+                     //Stack_Print_C(&stack); 
                     char *str = (char *)malloc(char_counter + 1);  
                     value.string = load_to_str(&stack, char_counter,str);
-                    printf("\n%s\n",value.string);
-                free(str);
+                    //printf("\n%s\n",value.string);
+                    free(str);
 					return create_token(TK_STRING,value,&stack);
 				}
 				else {
@@ -588,7 +604,7 @@ token_t get_token(FILE *src_file)
 				}
         }
         case STRING_BACKSLASH:
-            printf("\n====== STRING BACKSLASH STATE  ");
+            //printf("\n====== STRING BACKSLASH STATE  ");
 				// Neukonceny string == chyba
 				if(actual_charr == EOF){
                 printErrorIn(ERROR_LEX);
@@ -609,7 +625,7 @@ token_t get_token(FILE *src_file)
 				}
         // čísla
         case STRING_BACKSLASH_ASCII:{
-            printf("\n====== STRING BACKSLASH ASCII STATE  ");
+            //printf("\n====== STRING BACKSLASH ASCII STATE  ");
 				// Vlozim 3 znaky
 				char *str = malloc(3 + 1);
 				for(int i = 0; i < 3; i++){
@@ -643,7 +659,7 @@ token_t get_token(FILE *src_file)
 			}
 
         case STRING_BACKSLASH_CORRECT:
-                printf("\n====== STRING_BACKSLASH_CORRECT STATE  ");
+                //printf("\n====== STRING_BACKSLASH_CORRECT STATE  ");
                 char_counter++; 
 				if(actual_charr == '"'){
 					Stack_Push(&stack, '\"');
@@ -665,7 +681,7 @@ token_t get_token(FILE *src_file)
 				break;
             
         case LESS:
-                printf("\n====== LESS STATE");
+                //printf("\n====== LESS STATE");
                 if (actual_charr == '=') {
                     return create_token(TK_EQ_LESS,value,&stack);
                 }
@@ -683,7 +699,7 @@ token_t get_token(FILE *src_file)
                 break;
 
         case GREATER:
-                printf("\n====== LESS GREATER");
+                //printf("\n====== LESS GREATER");
                 if (actual_charr == '=') {
                     return create_token(TK_EQ_GREATER,value,&stack);
                 }
@@ -697,14 +713,14 @@ token_t get_token(FILE *src_file)
 
         
         case HEADER:{
-            printf("\n====== HEADER STATE");
+            //printf("\n====== HEADER STATE");
 
             if(actual_charr == 'p'){
                 char string_header[] = "hp";
                 for(int i = 0; i <= 1; i++){
                     actual_charr = getc(stdin);
                     if(actual_charr != string_header[i]){
-                            printf("not the same:\n" );
+                            //printf("not the same:\n" );
                         printErrorIn(ERR_LEX);
                     } 
                 } 
@@ -721,12 +737,12 @@ token_t get_token(FILE *src_file)
 
 
         case PAR_LEFT:{
-            printf("\n====== PAR LEFT STATE");
+            //printf("\n====== PAR LEFT STATE");
 
             return create_token(TK_PAR_LEFT, value,&stack);
         }
         case SPACE:{
-            printf("\n====== SPACE STATE");
+            //printf("\n====== SPACE STATE");
             while(isspace(actual_charr) || actual_charr == '\t'){
                 actual_charr = getc(stdin);
                 
@@ -738,15 +754,15 @@ token_t get_token(FILE *src_file)
         }
 
         case PAR_RIGHT:{
-            printf("\n====== PAR RIGHT STATE");
+            //printf("\n====== PAR RIGHT STATE");
 
             return create_token(TK_PAR_RIGHT, value,&stack);
         }
         case COMMENT:{
-            printf("\n====== COMMENT STATE\n");
+            //printf("\n====== COMMENT STATE\n");
 
             while(actual_charr != '\n'){
-                printf("COMM READING > %c\n", actual_charr);      
+                //printf("COMM READING > %c\n", actual_charr);      
 
                 actual_charr = getc(stdin);    
             }
@@ -754,10 +770,10 @@ token_t get_token(FILE *src_file)
             break;
         }
         case BLOCK_COMMENT:{
-            printf("===== BLOCK_COMMENT STATE\n");
+            //printf("===== BLOCK_COMMENT STATE\n");
             while(actual_charr != '*'){
                 actual_charr = getc(stdin);   
-                printf("BLOCK COMM READING > %c\n", actual_charr);      
+                //printf("BLOCK COMM READING > %c\n", actual_charr);      
  
             }
             actual_charr = getc(stdin); 
@@ -772,7 +788,7 @@ token_t get_token(FILE *src_file)
 
         }
         case DIV:{
-            printf("====== DIV STATE\n");
+            //printf("====== DIV STATE\n");
             if(actual_charr == '/'){
                 state = COMMENT;
                 ungetc(actual_charr,stdin);
@@ -791,7 +807,7 @@ token_t get_token(FILE *src_file)
         }
 
         case EQ:{
-            printf("====== EQ STATE\n");
+            //printf("====== EQ STATE\n");
 
             actual_charr = getc(stdin); 
             if(actual_charr == '='){
@@ -803,7 +819,7 @@ token_t get_token(FILE *src_file)
             return create_token(TK_EQ, value,&stack);
         }
         case TK_COMPARSION:{
-            printf("====== TK_COMPARSION STATE\n");
+            //printf("====== TK_COMPARSION STATE\n");
 
             actual_charr = getc(stdin); 
             if(actual_charr != '='){

@@ -98,10 +98,7 @@ void Stack_Destroy(Stack *stack)
 
 	while (!Stack_IsEmpty(stack)) //pokud neni prazdny
 	{
-		ptrItem *item=NULL;
-		item = stack->top;
-		stack->top = item->next;
-		free(item);
+		Stack_Pop(stack);
 	}
 
 	

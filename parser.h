@@ -14,5 +14,15 @@
  * @param token Ukazatel na token
  */
 
-void process();
+void prog();
+void prolog();
+void eol_opt();
+void st_list();  
+void statement(); 
+void func(); 
+void assignment();
+void stmtList();
+void stmtListBracketed();
+void fun_or_expr_2();
+
                                                   

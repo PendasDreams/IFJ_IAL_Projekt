@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=4221);
+ declare(strict_types=1);
 
 // Program 1: Vypocet faktorialu (iterativne)
 /* 
@@ -9,7 +9,8 @@ AS
 *A*/
 
 // Hlavni telo programu
-write("Zadejte cislo pro vypocet faktorialu\n");
+//int write(int cock);
+//write("Zadejte cislo pro vypocet faktorialu\n");
 $a = readi();
 
 if ($a === null) {

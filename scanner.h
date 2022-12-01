@@ -39,38 +39,38 @@ typedef enum{
 // typ tokenu
 
 typedef enum{
-    TK_ID,  //
-    TK_KWRD,    //
-    TK_ADD, //
-    TK_SUB, //
-    TK_MUL, //
-    TK_DIV, //
-    TK_EQ,  //
-    TK_AND,     //              
-    TK_OR,        //             
-    TK_GREATER,//   
-    TK_LESS,//
-    TK_EQ_GREATER,//       
-    TK_EQ_LESS,    //        
-    TK_COMPARSION,   //     
-    TK_NEG_COMPARSION, //         
-    TK_PAR_LEFT,         //     
-    TK_PAR_RIGHT,      //
-    TK_SEMI_COLON,       //   
-    TK_COLON,              //   
-    TK_LINE,  //
-    TK_COMMA,   //            
-    TK_CONCAT,//
-    TK_EOF,//
-    TK_EOL,//
-    TK_PHP,//
-    TK_INT, //
-    TK_STRING, //
-    TK_LEFT_CURLY_BRACKET, //
-    TK_RIGHT_CURLY_BRACKET, // 
-    TK_VARIABLE, //
-    TK_FOOTER //
-
+    TK_ID,  //0
+    TK_KWRD,    //1
+    TK_ADD, //2
+    TK_SUB, //3
+    TK_MUL, //4
+    TK_DIV, //5
+    TK_EQ,  //6
+    TK_AND,     //  7            
+    TK_OR,        //     8        
+    TK_GREATER,//   9
+    TK_LESS,//10
+    TK_EQ_GREATER,//  11     
+    TK_EQ_LESS,    //   12     
+    TK_COMPARSION,   //   13  
+    TK_NEG_COMPARSION, //   14      
+    TK_PAR_LEFT,         //   15  
+    TK_PAR_RIGHT,      //16
+    TK_SEMI_COLON,       // 17   
+    TK_COLON,              //  18  
+    TK_LINE,  //19
+    TK_COMMA,   // 20           
+    TK_CONCAT,// 21
+    TK_EOF,// 22 
+    TK_EOL,// 23
+    TK_PHP,// 24
+    TK_INT, // 25 
+    TK_STRING, //  26
+    TK_LEFT_CURLY_BRACKET, // 27
+    TK_RIGHT_CURLY_BRACKET, //  28
+    TK_VARIABLE, // 29
+    TK_FOOTER, // 30
+    TK_FLOAT // 31
 
 } TK_TYPE;
 

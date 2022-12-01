@@ -15,7 +15,7 @@
 
 int main(int argc, char const *argv[])
 {
-	process();
+	prolog();
 	
 	return 0;
 }
