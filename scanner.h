@@ -54,10 +54,10 @@ typedef enum{
     TK_EQ_LESS,    //   12     
     TK_COMPARSION,   //   13  
     TK_NEG_COMPARSION, //   14      
-    TK_PAR_LEFT,         //   15  
-    TK_PAR_RIGHT,      //16
-    TK_SEMI_COLON,       // 17   
-    TK_COLON,              //  18  
+    TK_PAR_LEFT,  //   15  
+    TK_PAR_RIGHT,   //16
+    TK_SEMI_COLON,  // 17   
+    TK_COLON,       //  18  
     TK_LINE,  //19
     TK_COMMA,   // 20           
     TK_CONCAT,// 21
@@ -70,8 +70,8 @@ typedef enum{
     TK_RIGHT_CURLY_BRACKET, //  28
     TK_VARIABLE, // 29
     TK_FOOTER, // 30
-    TK_FLOAT // 31
-
+    TK_FLOAT, // 31
+    TK_ERROR,
 } TK_TYPE;
 
 
@@ -121,6 +121,10 @@ typedef enum {
     STRING_BACKSLASH,       // string
     STRING_BACKSLASH_ASCII, // stirng
     STRING_BACKSLASH_CORRECT,// string
+    EXCLA,
+    FLOAT_SECOND_PART,
+    FLOAT_DECIMAL_POINT,
+    FLOAT_EXPONENT
 } STATE;
 
 

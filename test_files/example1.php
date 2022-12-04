@@ -11,7 +11,7 @@ AS
 // Hlavni telo programu
 //int write(int cock);
 //write("Zadejte cislo pro vypocet faktorialu\n");
-$a = readi();
+$a = 5;
 
 if ($a === null) {
 	write("Chyba pri nacitani celeho cisla!\n");
