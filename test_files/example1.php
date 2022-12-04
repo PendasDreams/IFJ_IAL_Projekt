@@ -14,7 +14,7 @@ AS
 $a = 5;
 
 if ($a === null) {
-	write("Chyba pri nacitani celeho cisla!\n");
+	write("Chyba pri nacitani celeho cisla \230 \n");
 } else {}
 
 if ($a < 0) {

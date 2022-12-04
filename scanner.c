@@ -29,7 +29,8 @@ int printErrorIn(error_code_t err){
 }
 
 
-char two_digit_hex_to_dec (char first, char second) {
+char hex_to_dec (char first, char second) {
+
     char dec = 0;
 
     if (isdigit(first))
@@ -38,7 +39,6 @@ char two_digit_hex_to_dec (char first, char second) {
         dec = 16 * (first - 'A' + 10);
     else
         dec = 16 * (first - 'a' + 10);
-
     if (isdigit(second))
         dec += second - '0';
     else if (second >= 'A' && second <= 'F')
@@ -62,12 +62,14 @@ int char_type(char c){
 
 
 int str_to_int(char* string_number) {
+    
     long int int_number = 0;
 
     while (*string_number) {
         if (int_number > (int)((unsigned)(-1)/2)) {
             return 1;
         }
+
         int_number *= 10;
         int_number += (string_number[0]-48);
         string_number++;
@@ -76,76 +78,6 @@ int str_to_int(char* string_number) {
     return int_number;
 }
 
-char* convert_to_str(char* input) {
-    size_t shift_left = 0;
-    int state = STRING_START;
-    char* input_cp = input;
-
-
-
-    if (input[strlen(input) - 1] == '"') {
-        input[strlen(input) - 1] = '\0';
-        input[strlen(input) - 1] = '\0';
-        input[strlen(input) - 1] = '\0';
-    }
-    else
-        input[strlen(input) - 1] = '\0';
-
-    while (*input_cp) {
-        switch (state){
-            case STRING_START:
-                if (*input_cp == '\\')
-                    state = ESCAPE_CHAR;
-                else if (*input_cp == '\r') { //pokud se jedna o CR, tak musí nasledovat LF
-                    *(input_cp - shift_left) = *input_cp;
-                    if (*(input_cp + 1) != '\n') //zkontrolujeme, zda opravdu nasleduje LF
-                        printErrorIn(ERROR_LEX);
-                }
-                else
-                    *(input_cp - shift_left) = *input_cp; //kopirovani normalnich znaku na prislusne misto
-                break;
-
-            case ESCAPE_CHAR:
-                if (*input_cp == 'x') {
-                    shift_left += 3; //jelikoz nahradime ctyr-znakovou sekvenci za jeden znak
-                    state = HEX_CHAR;
-                    break;
-                }
-
-                shift_left += 1; //jelikoz nahradime dvou-znakovou sekvenci za jeden znak
-                if (*input_cp == '\"')
-                    *(input_cp - shift_left) = '\"';
-                else if (*input_cp == '\'')
-                    *(input_cp - shift_left) = '\'';
-                else if (*input_cp == 'n')
-                    *(input_cp - shift_left) = '\n';
-                else if (*input_cp == 't')
-                    *(input_cp - shift_left) = '\t';
-                else if (*input_cp == '\\') //jina moznost nenastane, to je osetreno v hlavnim fsm
-                    *(input_cp - shift_left) = '\\';
-                else {
-                    shift_left--;
-                    *(input_cp - shift_left -1) = '\\';
-                    *(input_cp - shift_left) = *input_cp;
-                }
-                state = STRING_START;
-                break;
-
-            case HEX_CHAR:
-                input_cp++; //musime rucne posunout, jelikoz zpracovavame dva znaky najednou
-                //vezmeme aktualni a predchozi znak, prevedeme je do desitkove soustavy a ulozime do pole
-                *(input_cp - shift_left) = two_digit_hex_to_dec(*(input_cp - 1), *input_cp);
-                state = STRING_START;
-                break;
-        } //switch
-        input_cp++;
-    } //while
-
-    *(input_cp - shift_left) = '\0'; //posunuti ukoncovaciho znaku
-
-    //realokace podle aktualni delky, delka noveho retezce je <= delka stareho
-    return input;
-}
 
 
 char *load_to_str(Stack* stack, int char_counter, char* str){
@@ -153,19 +85,14 @@ char *load_to_str(Stack* stack, int char_counter, char* str){
     printf("we are gere");
     printf("char counter = %d",char_counter);
     
-
     if (str == NULL)
         printErrorIn(ERROR_PROGRAM);
-    
-    //zkopiruje chars_loaded znaku z souboru do str
 
     printf("\n%d\n", char_counter);
     for (int i = char_counter -1; i >= 0; i--){
          str[i] = stack->top->data;
          printf("%c", stack->top->data);
          stack->top = stack->top->next;
-         
-
     }
     return str;
 }
@@ -186,7 +113,6 @@ int iskeyword(char *s){
         return KEY_FUNCTION;
     }    
     if (strcmp((const char*)s, "if") == 0){
-        //printf("\nwe are pusssieees\n");
         return KEY_IF;
     }  
     if (strcmp((const char*)s, "while")== 0){
@@ -208,11 +134,10 @@ int iskeyword(char *s){
         return KEY_VOID;
     }
     if (strcmp((const char*)s, "declare")== 0){
-        //printf("\nis keydeclare\n");
         return KEY_DECLARE;
     }
         
-    return NOT_KEY; // if not keyword
+    return NOT_KEY;
 }
 
 
@@ -241,11 +166,9 @@ token_t create_token(int token_id, token_value value, Stack* stack){
             break;
 
         case TK_ID:
-            //printf("\n string >>%s\n", value.string);
             printf("TOKEN: %s\n", value.string);
 
             if(iskeyword(value.string) == KEY_DECLARE){
-                //printf("\n creating ID token\n");
                 while(skipper != ';'){
                     skipper =getc(stdin);
                 }
@@ -260,12 +183,6 @@ token_t create_token(int token_id, token_value value, Stack* stack){
             }
             else     //pokud se jedna o identifikator pouze uloz jeho jmeno
                 token.value.string = value.string;
-            break;
-
-        case TK_STRING:
-            token.value.string = convert_to_str(value.string);
-            printf("TOKEN: %s\n", value.string);
-
             break;
 
         case TK_INT:
@@ -662,7 +579,7 @@ token_t get_token(FILE *src_file)
                 printErrorIn(ERROR_LEX);
                 return create_token(TK_EOF,value,&stack);
 				}
-				if(actual_charr == '"' || actual_charr == '\\' || actual_charr == 'n' || actual_charr == 't'|| actual_charr == '$'){
+				if(actual_charr == '"' || actual_charr == '\\' || actual_charr == 'n' || actual_charr == 't'|| actual_charr == '$' || actual_charr == 'x'){
 					state = STRING_BACKSLASH_CORRECT;
 					ungetc(actual_charr, stdin);
 					break;
@@ -703,6 +620,8 @@ token_t get_token(FILE *src_file)
 				// Ascii hodnota pouze 1-255
 				if(res < 1 || res > 255){
                 printErrorIn(ERROR_LEX);
+                token_value values;
+                return create_token(TK_EOF,values,&stack);
 				}
 				// Prevedu integer hodnotu ascii znaku na ascii znak
 				char finalChar = res;
@@ -727,6 +646,21 @@ token_t get_token(FILE *src_file)
 				}
                 else if(actual_charr == '$'){
 					Stack_Push(&stack, '$');
+				}
+                else if(actual_charr == 'x'){
+                    actual_charr = getc(stdin);
+                    for(int i =0; i<=1; i++){
+
+                        if(actual_charr >= 'A' && actual_charr <= 'F'){
+                            Stack_Push(&stack, '$');
+                            actual_charr = getc(stdin);
+                        }
+                        else{
+                            printErrorIn(ERR_LEX);
+                            return create_token(TK_EOF,value,&stack);
+                        }
+                    } 
+                    ungetc(actual_charr,stdin);
 				}
 				// \t
 				else {
