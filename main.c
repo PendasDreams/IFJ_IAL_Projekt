@@ -1,8 +1,7 @@
 /**
- * @file main.c
- * @author xnovos14
- * @author 
- * @brief Main
+ * @file scanner.c
+ * @author Denis Novosád xnovos14
+ * @brief Lexikalni analyzator
  */
 
 #include <stdio.h>

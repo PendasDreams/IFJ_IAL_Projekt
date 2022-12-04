@@ -72,6 +72,7 @@ typedef enum{
     TK_FOOTER, // 30
     TK_FLOAT, // 31
     TK_ERROR,
+    TK_NOT
 } TK_TYPE;
 
 
@@ -124,7 +125,9 @@ typedef enum {
     EXCLA,
     FLOAT_SECOND_PART,
     FLOAT_DECIMAL_POINT,
-    FLOAT_EXPONENT
+    FLOAT_EXPONENT,
+    FLOAT_EXPONENT_PART,
+    FLOAT_EXPONENT_SIGN,
 } STATE;
 
 

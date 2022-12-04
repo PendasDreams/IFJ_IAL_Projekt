@@ -1,6 +1,6 @@
 /**
  * @file scanner.c
- * @author
+ * @author Denis Novosád xnovos14
  * @brief Lexikalni analyzator
  */
 
@@ -17,47 +17,11 @@
 
 
 
-int printError(error_code_t err, token_t *token);
-
-
-
-
 int state;
 int line_count = 1;
 int first_token = 1;
 
 
-
-int printError(error_code_t err, token_t *token){
-    switch(err){
-        case ERROR_LEX:
-            fprintf(stderr, "Faul at line %d: ERROR_LEX\n", token->line);
-            return err;
-        case ERROR_SYNTAX:
-            fprintf(stderr, "Faul at line %d: ERROR_SYNTAX\n", token->line);
-            return err;
-        case ERROR_SEM_DEF:
-            fprintf(stderr, "Faul at line %d: ERROR_SEM_DEF\n", token->line);
-            return err;
-        case ERROR_SEM_PARAM:
-            fprintf(stderr, "Faul at line %d: ERROR_SEM_PARAM\n", token->line);
-            return err;
-        case ERROR_SEM_UNDEF_VAR:
-            fprintf(stderr, "Faul at line %d: ERROR_SEM_UNDEF_VAR\n", token->line);
-            return err;
-        case ERROR_SEM_FUNC_RET:
-            fprintf(stderr, "Faul at line %d: ERROR_SEM_FUNC_RET\n", token->line);
-            return err;
-        case ERROR_SEM_TYPE:
-            fprintf(stderr, "Faul at line %d: ERROR_SEM_TYPE\n", token->line);
-            return err;
-        case ERROR_SEM_OTHER:
-            fprintf(stderr, "Faul at line %d: ERROR_SEM_OTHER\n", token->line);
-            return err;
-        default:
-            return err;
-    }
-}
 
 int printErrorIn(error_code_t err){
         fprintf(stderr, " %d Inner programm error\n", err);
@@ -85,17 +49,13 @@ char two_digit_hex_to_dec (char first, char second) {
 }
 
 
-int get_char_type(char c){
-	// 0-9
+int char_type(char c){
 	if( c >= '0' && c <= '9' ){
 		return 1;
 	}
-
-	// a-z,A-Z
 	if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')){
 		return 2;
 	}
-
 	return 0;
 }
 
@@ -123,13 +83,13 @@ char* convert_to_str(char* input) {
 
 
 
-    if (input[strlen(input) - 1] == '"') { //pokud se jedna o literal uvozeny """string"""
+    if (input[strlen(input) - 1] == '"') {
         input[strlen(input) - 1] = '\0';
         input[strlen(input) - 1] = '\0';
         input[strlen(input) - 1] = '\0';
     }
-    else //pokud se jedna o literal uvozeny 'string'
-        input[strlen(input) - 1] = '\0'; //posledni znak (apostrof) nahradim ukoncujicim znakem
+    else
+        input[strlen(input) - 1] = '\0';
 
     while (*input_cp) {
         switch (state){
@@ -139,7 +99,7 @@ char* convert_to_str(char* input) {
                 else if (*input_cp == '\r') { //pokud se jedna o CR, tak musí nasledovat LF
                     *(input_cp - shift_left) = *input_cp;
                     if (*(input_cp + 1) != '\n') //zkontrolujeme, zda opravdu nasleduje LF
-                        printError(ERROR_LEX, NULL);
+                        printErrorIn(ERROR_LEX);
                 }
                 else
                     *(input_cp - shift_left) = *input_cp; //kopirovani normalnich znaku na prislusne misto
@@ -275,7 +235,7 @@ token_t create_token(int token_id, token_value value, Stack* stack){
         case TK_FLOAT:
             token.value.double_value = strtod(value.string , NULL);
             if (errno == ERANGE)
-                printError(ERROR_SEM_TYPE, &token); //pri preteceni nebo podteceni
+                printErrorIn(ERROR_LEX);
             printf("TOKEN: %s\n", value.string);
             free(value.string);
             break;
@@ -390,9 +350,31 @@ token_t get_token(FILE *src_file)
             if (actual_charr == '*') {state = MUL; break;}
             if (actual_charr == '+') {state = ADD; break;}
             if (actual_charr == '-') {state = SUB; break;}
+            if (actual_charr == '.') {return create_token(TK_CONCAT,value,&stack);}
             if (actual_charr == ',') {state = COMMA; break;}
             if (actual_charr == '!') {state = EXCLA; break;}
+            if (actual_charr == '|') {state = OR; break;}
+            if (actual_charr == '&') {state = AND; break;}
 
+        case AND:
+            printf("\n====== AND STATE");
+            if(actual_charr != '&'){
+                printErrorIn(ERROR_LEX);
+                return create_token(TK_EOF,value,&stack);
+            }
+            else{
+                return create_token(TK_AND,value,&stack);
+            }
+        case OR:
+            printf("\n====== AND STATE");
+            if(actual_charr != '|'){
+                printErrorIn(ERROR_LEX);
+                return create_token(TK_EOF,value,&stack);
+            }
+            else{
+                return create_token(TK_OR,value,&stack);
+            }
+            
         case ADD:
             printf("\n====== ADD STATE");
             return create_token(TK_ADD,value,&stack);
@@ -416,14 +398,13 @@ token_t get_token(FILE *src_file)
             if(actual_charr == '='){
                 state = NEG_COMPARSION;
             }
-            if(actual_charr == '(' ||  isalpha(actual_charr)){
-                ungetc(actual_charr,stdin);
-                state = START;
+            else{
+                return create_token(TK_NOT,value,&stack);
             }
 
         case NEG_COMPARSION:
             if (actual_charr == '=') {
-                    return create_token(TK_NEG_COMPARSION,value,&stack);
+                return create_token(TK_NEG_COMPARSION,value,&stack);
             }
 
 
@@ -513,10 +494,12 @@ token_t get_token(FILE *src_file)
             }
             else if (actual_charr == '.') { 
                 state = CONCAT;
+                char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
             else if ((actual_charr == 'e') || (actual_charr == 'E')) {
                 state = FLOAT_EXPONENT;
+                char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
             else {
@@ -531,6 +514,7 @@ token_t get_token(FILE *src_file)
         case CONCAT:
             if (isalpha(actual_charr)) {
                 state = FLOAT_SECOND_PART;
+                char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
             else {
@@ -542,10 +526,12 @@ token_t get_token(FILE *src_file)
         case FLOAT_SECOND_PART: {
             if (isalpha(actual_charr)) {
                 state = FLOAT_SECOND_PART;
+                char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
             else if (actual_charr == 'e' || actual_charr == 'E') {
                 state = FLOAT_EXPONENT;
+                char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
             else {
@@ -556,11 +542,13 @@ token_t get_token(FILE *src_file)
             }
         case FLOAT_EXPONENT:
             if (isalpha(actual_charr)) {
-                state = FLOAT_EXPONENT;
+                state = FLOAT_EXPONENT_PART;
+                char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
             else if ((actual_charr == '+') || (actual_charr == '-')) {
                 state = FLOAT_EXPONENT_SIGN;
+                char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
             else {
@@ -573,8 +561,9 @@ token_t get_token(FILE *src_file)
 
         case FLOAT_EXPONENT_SIGN:
 
-            if (actual_charr >= '0' && actual_charr <= '9') {
-                state = FLOAT_EXPONENT;
+            if (isalpha(actual_charr)) {
+                state = FLOAT_EXPONENT_PART;
+                char_counter++; 
                  Stack_Push(&stack, actual_charr);
             }
             else {
@@ -582,6 +571,19 @@ token_t get_token(FILE *src_file)
                 return create_token(TK_EOF,value,&stack);
             }
             break;
+
+        case FLOAT_EXPONENT_PART:
+
+                if (isalpha(actual_charr)) {
+                    state = FLOAT_EXPONENT_PART;
+                    char_counter++; 
+                    Stack_Push(&stack, actual_charr);
+                }
+                else {
+
+                return create_token(TK_FLOAT,value,&stack);
+                }
+                break;
 
         case STRING:{
             printf("\n====== STRING STATE  ");
@@ -666,7 +668,7 @@ token_t get_token(FILE *src_file)
 					break;
 				}
 				// bude to napr. \123
-				else if(get_char_type(actual_charr) == 1){
+				else if(char_type(actual_charr) == 1){
 					state = STRING_BACKSLASH_ASCII;
 					ungetc(actual_charr, stdin);
 					break;
@@ -681,7 +683,7 @@ token_t get_token(FILE *src_file)
 				// Vlozim 3 znaky
 				char *str = malloc(3 + 1);
 				for(int i = 0; i < 3; i++){
-					if(get_char_type(actual_charr) == 1){
+					if(char_type(actual_charr) == 1){
 						str[i] = actual_charr;
 					}
 					else {
@@ -741,6 +743,7 @@ token_t get_token(FILE *src_file)
 
                 else if (actual_charr == '?') {
                     state = HEADER;
+                    char_counter++; 
                     Stack_Push(&stack, actual_charr);
                 }
                 else if (actual_charr != '=') {
@@ -898,10 +901,6 @@ token_t get_token(FILE *src_file)
     }
 
 }// while 
-
-    
-
-    return create_token(TK_EOL, value,&stack); 
 
 }
 
