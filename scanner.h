@@ -1,6 +1,6 @@
 /**
  * @file scanner.h
- * @author 
+ * @author Denis Novosád xnovos14
  * @brief Lexikalni analyzator
  */
 
@@ -72,7 +72,8 @@ typedef enum{
     TK_FOOTER, // 30
     TK_FLOAT, // 31
     TK_ERROR,
-    TK_NOT
+    TK_NOT,
+    TK_BITWISE
 } TK_TYPE;
 
 
@@ -128,6 +129,8 @@ typedef enum {
     FLOAT_EXPONENT,
     FLOAT_EXPONENT_PART,
     FLOAT_EXPONENT_SIGN,
+    STRING_CHAR,
+
 } STATE;
 
 

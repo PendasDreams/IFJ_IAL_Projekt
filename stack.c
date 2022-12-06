@@ -3,6 +3,8 @@
  * @author xnovos14
  * @brief Implentace pomocnych funkci pro zasobnik
 */
+
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +16,7 @@
 
 
 
-
+// inicializace
 void Stack_Init(Stack *stack)
 {
 	if (stack == NULL){
@@ -24,42 +26,42 @@ void Stack_Init(Stack *stack)
 	
 	else{
 
-		stack->top = NULL; // nastaveni inicializace
+		stack->top = NULL; 
 	}
 	
 }
 
-
+//pokud je stack prázdný, vrací true
 bool Stack_IsEmpty(Stack* stack)
 {
 	if (stack->top == NULL)
 	{
 		return true;
 	}
-	return false; //pokud je index rovny inicializaci vratim true
+	return false; 
 }
 
 
 
-
+// vrati vrchol zasobniku
 int Stack_Top_Type(Stack *stack)
 {
 
-	if (Stack_IsEmpty(stack)) //pokud je prazdny nejsou v nem data
+	if (Stack_IsEmpty(stack))
 	{
 		exit(99);
 	}
 
-	return stack->top->type; // vrati vrchol zasobniku
+	return stack->top->type; 
 }
 
 
 
-
+//odstraní položku z vrcholu
 void Stack_Pop(Stack *stack)
 {
 
-	if (Stack_IsEmpty(stack)) //pokud je prazdny 
+	if (Stack_IsEmpty(stack))  
 	{
 		printErrorIn(ERROR_PROGRAM);
 	}
@@ -72,7 +74,7 @@ void Stack_Pop(Stack *stack)
 
 }
 
-
+//odstraní položku na vrchol
 void Stack_Push(Stack *stack, char data)
 {
 	if (stack == NULL)
@@ -92,108 +94,28 @@ void Stack_Push(Stack *stack, char data)
 
 }
 
+// smaže celý stack
 void Stack_Destroy(Stack *stack)
 {
 
-
-	while (!Stack_IsEmpty(stack)) //pokud neni prazdny
+	while (!Stack_IsEmpty(stack))
 	{
 		Stack_Pop(stack);
 	}
 
-	
-
 }
 
-
-void Stack_Prin_INT(Stack* stack){
-	ptrItem* tmp = stack->top;
-	printf("-------------STACK PRINT-------- ID types z expression.h \n");
-	while(tmp!=NULL)
-	{
-		printf("%i %d \n",tmp->type,tmp->data);
-		tmp = tmp->next;
-	}
-	printf("---konec printu-----\n");
-
-
-}
-
+// vytiskne stack
 void Stack_Print_C(Stack* stack){
-	printf("\nsup\n");
+
 	ptrItem* tmp = stack->top;
-	printf("-------------STACK PRINT-------- ID types z expression.h \n");
+	
 	while(tmp!=NULL)
 	{
 		printf("%i %c \n",tmp->type,tmp->data);
 		tmp = tmp->next;
 	}
-	printf("---konec printu-----\n");
 
-
-}
-
-//==================================== String stack
-
-
-void stack_init_string(tStack_string* s) {
-	if (s == NULL)
-		printErrorIn(ERROR_PROGRAM);
-	else
-		s->top = NULL;
-}
-
-bool stack_empty_string(tStack_string* s) {
-    if (s == NULL)
-		return true;
-    else
-        return false;
-}
-
-char * stack_top_string(tStack_string* s) {
-	if (stack_empty_string(s) || stack_empty_string(s))
-		printErrorIn(ERROR_PROGRAM);
-	else
-		return s->top->data;
-
-	return NULL;
-}
-
-void stack_pop_string(tStack_string* s) {
-	if (s == NULL)
-		printErrorIn(ERROR_PROGRAM);
-	else if (!stack_empty_string(s)) {
-            tElem_string* del = NULL;
-			del = s->top;
-            s->top = s->top->next;
-			free(del);
-        }
-}
-
-void stack_push_string(tStack_string* s, char * data) {
-	if (s == NULL)
-		printErrorIn(ERROR_PROGRAM);
-	else {
-        tElem_string* insert = (tElem_string*)malloc(sizeof(tElem_string));
-        if (insert == NULL)
-		printErrorIn(ERROR_PROGRAM);
-
-        insert->data = data;
-        insert->next = s->top;
-        s->top = insert;
-	}
-}
-
-void Stack_String_Print(tStack_string* stack){
-	printf("\nsup\n");
-	tElem_string* tmp = stack->top;
-	printf("-------------STACK PRINT-------- ID types z expression.h \n");
-	while(tmp!=NULL)
-	{
-		printf(" %s \n",tmp->data);
-		tmp = tmp->next;
-	}
-	printf("---konec printu-----\n");
 
 
 }

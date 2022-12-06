@@ -14,6 +14,8 @@
  * 
  */
 
+if ($line !==  null){}
+
 declare(strict_types=1);
 
 error_reporting(E_ALL);
@@ -40,7 +42,7 @@ function readi(): ?int
 function readf(): ?float
 {
 	$line = reads();
-	if ($line === null) //EOF
+	if ($line !==  null) //EOF
 		return null;
 	return filter_var($line, FILTER_VALIDATE_FLOAT, FILTER_NULL_ON_FAILURE);
 }
@@ -78,4 +80,4 @@ if (isset($argv[1]))
 	return include($argv[1]);
 }
 
-?>
+?
