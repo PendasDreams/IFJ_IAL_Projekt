@@ -24,7 +24,6 @@ int main(int argc, char const *argv[])
 			if(next_token.type == TK_ERROR){
 				return 0;
 			}
-			printf("\n\n===typ tokenu je %d===\n\n", next_token.type);
 			next_token = get_token(stdin);
 		} 	
 		return 0;

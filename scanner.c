@@ -187,9 +187,6 @@ token_t get_token(FILE *src_file)
     int char_counter = 0;
     static int first_token = 1;
 
-
-    int i = 1;
-
     if (first_token == 1) {
             first_token = 0;
             Stack_Init(&stack);
@@ -320,7 +317,6 @@ token_t get_token(FILE *src_file)
                     state = VARIABLE;
                 }
                 else {
-                    Stack_Print_C(&stack);
                     char *str = (char *)malloc(char_counter + 1);  
                     value.string = load_to_str(&stack, char_counter,str);
                     free(str);
@@ -337,7 +333,6 @@ token_t get_token(FILE *src_file)
                 state = ID;
             }
             else {
-                Stack_Print_C(&stack);  
                 char *str = (char *)malloc(char_counter + 1);  
                 value.string = load_to_str(&stack, char_counter,str);
                 free(str);
@@ -364,7 +359,6 @@ token_t get_token(FILE *src_file)
                 Stack_Push(&stack, actual_charr);
             }
             else {
-                Stack_Print_C(&stack);  
                 ungetc(actual_charr,stdin);
                 return create_token(TK_INT,value,&stack);
                 
@@ -451,7 +445,6 @@ token_t get_token(FILE *src_file)
                 return create_token(TK_EOF,value,&stack);
             }
             if(actual_charr == '"'){
-                Stack_Print_C(&stack); 
                 char *str = (char *)malloc(char_counter + 1);  
                 value.string = load_to_str(&stack, char_counter,str);
                 free(str);
@@ -495,7 +488,6 @@ token_t get_token(FILE *src_file)
 					break;
 				}
 				else if(actual_charr == '"'){
-                    Stack_Print_C(&stack); 
                     char *str = (char *)malloc(char_counter + 1);  
                     value.string = load_to_str(&stack, char_counter,str);
                     free(str);
