@@ -14,8 +14,6 @@
 #include <stdbool.h>
 
 
-
-
 // keywords
 
 typedef enum{
@@ -187,16 +185,8 @@ typedef enum errCode {
 } ErrCode;
 
 
-
-
 int printError(error_code_t err, token_t *token);
 int printErrorIn(error_code_t err);
-
-
-
-
-
-
 token_t get_token(FILE* src_file);
 
 

@@ -713,8 +713,7 @@ token_t get_token(FILE *src_file)
             else{   
                 ungetc(actual_charr,stdin);
                 return create_token(TK_DIV, value,&stack);
-            }
-            
+            }        
         }
 
         case EQ:{
@@ -736,8 +735,7 @@ token_t get_token(FILE *src_file)
             }
             else{
                 return create_token(TK_COMPARSION, value,&stack);
-            }
-            
+            }          
         }
         default:
             printErrorIn(ERR_LEX);
