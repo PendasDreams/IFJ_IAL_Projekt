@@ -201,7 +201,7 @@ token_t get_token(FILE *src_file)
         {
         case START: // počáteční stav automatu
 
-            if (actual_charr == '\n') {state = START;break;}
+
             if (actual_charr == EOF) {state = EOFile; break;}
             if (actual_charr == '<'){state = LESS;break;}
             if (actual_charr == '>'){state = GREATER;break;}
@@ -213,11 +213,11 @@ token_t get_token(FILE *src_file)
             if (actual_charr == ')') {state = PAR_RIGHT;ungetc(actual_charr, stdin); break;}
             if (actual_charr == '=') {state = EQ;ungetc(actual_charr,stdin); break;}
             if (isdigit(actual_charr)) {state = NUMBER; char_counter++; Stack_Push(&stack, actual_charr); break;}
-            if (actual_charr == ';') {return create_token(TK_SEMI_COLON,value,&stack);}\
-            if (actual_charr == '{') {return create_token(TK_LEFT_CURLY_BRACKET,value,&stack);}
-            if (actual_charr == '}') {return create_token(TK_RIGHT_CURLY_BRACKET,value,&stack);}
-            if (actual_charr == '[') {return create_token(TK_LEFT_CURLY_BRACKET,value,&stack);}
-            if (actual_charr == ']') {return create_token(TK_LEFT_CURLY_BRACKET,value,&stack);}
+            if (actual_charr == ';') {state = SEMI_COLON;return create_token(TK_SEMI_COLON,value,&stack);}\
+            if (actual_charr == '{') {state = LEFT_CURLY_BRACKET;return create_token(TK_LEFT_CURLY_BRACKET,value,&stack);}
+            if (actual_charr == '}') {state = RIGHT_CURLY_BRACKET;return create_token(TK_RIGHT_CURLY_BRACKET,value,&stack);}
+            if (actual_charr == '[') {state = PAR_LEFT_R;return create_token(TK_LEFT_CURLY_BRACKET,value,&stack);}
+            if (actual_charr == ']') {state = PAR_RIGHT_R;return create_token(TK_LEFT_CURLY_BRACKET,value,&stack);}
             if (actual_charr == '/') {state = DIV; break;}
             if (actual_charr == '"') {state = STRING; break;}
             if (actual_charr == '\'') {state = STRING_CHAR; break;}
@@ -226,11 +226,12 @@ token_t get_token(FILE *src_file)
             if (actual_charr == '*') {state = MUL; break;}
             if (actual_charr == '+') {state = ADD; break;}
             if (actual_charr == '-') {state = SUB; break;}
-            if (actual_charr == '.') {return create_token(TK_CONCAT,value,&stack);}
+            if (actual_charr == '.') {state = CONCAT;return create_token(TK_CONCAT,value,&stack);}
             if (actual_charr == ',') {state = COMMA; break;}
             if (actual_charr == '!') {state = EXCLA; break;}
             if (actual_charr == '|') {state = OR; break;}
             if (actual_charr == '&') {state = AND; break;}
+            if (actual_charr == '\n') {state = START;break;}
 
         case AND:
             if(actual_charr != '&'){
@@ -257,11 +258,15 @@ token_t get_token(FILE *src_file)
 
         case TYPE_ID:
             if(actual_charr == '>'){
-                return create_token(TK_FOOTER,value,&stack);
+                ungetc(actual_charr,stdin);
+                state = FOOTER;
             }
             else{
                 state = ID;
             }
+            break;
+        case FOOTER:
+            return create_token(TK_FOOTER,value,&stack);
 
         case EXCLA:
             if(actual_charr == '='){
@@ -327,7 +332,7 @@ token_t get_token(FILE *src_file)
             }
 
         case ID:
-            if (actual_charr  == '_' || ((actual_charr >= 'a' && actual_charr <= 'z') || (actual_charr >= 'A' && actual_charr <= 'Z') || (actual_charr == '_')) ){
+            if (actual_charr  == '_' || ((actual_charr >= 'a' && actual_charr <= 'z') || (actual_charr >= 'A' && actual_charr <= 'Z') || (isalpha(actual_charr))) ){
                 Stack_Push(&stack, actual_charr);
                 char_counter++;                
                 state = ID;
@@ -354,7 +359,7 @@ token_t get_token(FILE *src_file)
                 Stack_Push(&stack, actual_charr);
             }
             else if ((actual_charr == 'e') || (actual_charr == 'E')) {
-                state = FLOAT_EXPONENT;
+                state = EXPONENT;
                 char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
@@ -385,7 +390,7 @@ token_t get_token(FILE *src_file)
                 Stack_Push(&stack, actual_charr);
             }
             else if (actual_charr == 'e' || actual_charr == 'E') {
-                state = FLOAT_EXPONENT;
+                state = EXPONENT;
                 char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
@@ -395,14 +400,14 @@ token_t get_token(FILE *src_file)
             }
             break;
             }
-        case FLOAT_EXPONENT:
+        case EXPONENT:
             if (isalpha(actual_charr)) {
-                state = FLOAT_EXPONENT_PART;
+                state = EXPONENT_PART;
                 char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
             else if ((actual_charr == '+') || (actual_charr == '-')) {
-                state = FLOAT_EXPONENT_SIGN;
+                state = EXPONENT_SIGN;
                 char_counter++; 
                 Stack_Push(&stack, actual_charr);
             }
@@ -414,10 +419,10 @@ token_t get_token(FILE *src_file)
 
         break;
 
-        case FLOAT_EXPONENT_SIGN:
+        case EXPONENT_SIGN:
 
             if (isalpha(actual_charr)) {
-                state = FLOAT_EXPONENT_PART;
+                state = EXPONENT_PART;
                 char_counter++; 
                  Stack_Push(&stack, actual_charr);
             }
@@ -427,10 +432,10 @@ token_t get_token(FILE *src_file)
             }
             break;
 
-        case FLOAT_EXPONENT_PART:
+        case EXPONENT_PART:
 
                 if (isalpha(actual_charr)) {
-                    state = FLOAT_EXPONENT_PART;
+                    state = EXPONENT_PART;
                     char_counter++; 
                     Stack_Push(&stack, actual_charr);
                 }

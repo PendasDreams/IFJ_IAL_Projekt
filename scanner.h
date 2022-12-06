@@ -102,7 +102,9 @@ typedef enum {
     OR,                     // or
     NOT,                    // not
     PAR_LEFT,               // (
+    PAR_LEFT_R, 
     PAR_RIGHT,              // )
+    PAR_RIGHT_R, 
     LEFT_CURLY_BRACKET,     // {
     RIGHT_CURLY_BRACKET,    // }
     SEMI_COLON,             // ;
@@ -124,10 +126,11 @@ typedef enum {
     EXCLA,
     FLOAT_SECOND_PART,
     FLOAT_DECIMAL_POINT,
-    FLOAT_EXPONENT,
-    FLOAT_EXPONENT_PART,
-    FLOAT_EXPONENT_SIGN,
+    EXPONENT,
+    EXPONENT_PART,
+    EXPONENT_SIGN,
     STRING_CHAR,
+    FOOTER
 
 } STATE;
 
